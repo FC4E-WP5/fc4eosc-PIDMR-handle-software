@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>faircore4eosc - Meta Resolver - {{ERROR::CGIEscape}}</title>
+    <link rel="stylesheet" href="{{CONTEXT_PATH}}/static/css/style.css">
+    <link rel="icon" href="{{CONTEXT_PATH}}/static/images/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="stylesheet" href="{{CONTEXT_PATH}}/static/css/bootstrap.min.css">
+</head>
+
+<body>
+<div id="content">
+    <div>
+        <a href="./"><img src="{{CONTEXT_PATH}}/static/images/logo.jpg" width="250" height="30" alt="faircore4eosc"></a>
+    </div>
+    <br>
+    <h2 class="text-center">Meta Resolver - MR</h2>
+    <hr>
+    <div>
+        <div class="alert alert-danger" role="alert">
+            <strong>Identifier Error!</strong> {{ERROR::CGIEscape}}
+        </div>
+        <div class="alert alert-info" role="alert">
+            Unfortunately, the given identifier - {{HANDLE::CGIEscape}} - could not be resolved.<br>
+            Please check the identifier including the provider schema.<br>
+            Refer to the following table for details of hosted providers including services provided.
+        </div>
+    </div>
+    <h3>Resolving Matrix</h3>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">Provider</th>
+            <th scope="col">Provider Schema</th>
+            <th scope="col">Example</th>
+            <th scope="col">Landing Page</th>
+            <th scope="col">Metadata</th>
+            <th scope="col">Resource</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">ARK</th>
+            <td>ark</td>
+            <td>ark:/67531/metapth346793</td>
+            <td>x</td>
+            <td>x</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <th scope="row">arXiv</th>
+            <td> arXiv</td>
+            <td>arXiv:2302.00338</td>
+            <td>x</td>
+            <td>x</td>
+            <td>x</td>
+        </tr>
+        <tr>
+            <th scope="row">Handle</th>
+            <td>-</td>
+            <td>21.T11148/7317d72eb37156ced029</td>
+            <td>x</td>
+            <td>x</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <th scope="row">DOI</th>
+            <td>-</td>
+            <td>10.3390/s18020479</td>
+            <td>x</td>
+            <td>x</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <th scope="row">SWHID</th>
+            <td>swh</td>
+            <td>swh:1:cnt:94a9ed024d3859793618152ea559a168bbcbb5e2</td>
+            <td>x</td>
+            <td>x</td>
+            <td>x</td>
+        </tr>
+        <tr>
+            <th scope="row">DE-URN</th>
+            <td>urn:nbn:de</td>
+            <td>urn:nbn:de:hbz:6-85659524771</td>
+            <td>x</td>
+            <td>x</td>
+            <td>x</td>
+        </tr>
+        <tr>
+            <th scope="row">FI-URN</th>
+            <td>urn:nbn:fi</td>
+            <td>urn:nbn:fi-fe2021080942632</td>
+            <td>x</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <th scope="row">Zenodo</th>
+            <td>10.5281/zenodo</td>
+            <td>10.5281/zenodo.8246990</td>
+            <td>x</td>
+            <td>x</td>
+            <td>x</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>faircore4eosc - Meta Resolver - {{ERROR::CGIEscape}}</title>
+    <link rel="stylesheet" href="{{CONTEXT_PATH}}/static/css/style.css">
+    <link rel="icon" href="{{CONTEXT_PATH}}/static/images/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="stylesheet" href="{{CONTEXT_PATH}}/static/css/bootstrap.min.css">
+</head>
+
+<body>
+<div id="content">
+    <div>
+        <a href="./"><img src="{{CONTEXT_PATH}}/static/images/logo.jpg" width="250" height="30" alt="faircore4eosc"></a>
+    </div>
+    <br>
+    <h2 class="text-center">Meta Resolver - MR</sup></h2>
+    <hr>
+    <div>
+        <div class="alert alert-danger" role="alert">
+            <strong>Handle Error!</strong> {{ERROR::CGIEscape}}
+        </div>
+        <div class="alert alert-info" role="alert">
+            Unfortunately, the given handle - {{MYHANDLE::CGIEscape}} - could not be resolved.<br>
+            Please check the handle including the prefix and suffix.
+        </div>
+    </div>
+</div>
+</body>
+</html>

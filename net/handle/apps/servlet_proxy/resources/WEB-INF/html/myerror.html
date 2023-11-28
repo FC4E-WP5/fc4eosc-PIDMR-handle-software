@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>faircore4eosc - Meta Resolver - {{ERROR::CGIEscape}}</title>
+    <link rel="stylesheet" href="{{CONTEXT_PATH}}/static/css/style.css">
+    <link rel="icon" href="{{CONTEXT_PATH}}/static/images/favicon.ico" type="image/vnd.microsoft.icon" />
+    <link rel="stylesheet" href="{{CONTEXT_PATH}}/static/css/bootstrap.min.css">
+</head>
+
+<body>
+<div id="content">
+    <div>
+        <a href="./"><img src="{{CONTEXT_PATH}}/static/images/logo.jpg" width="250" height="30" alt="faircore4eosc"></a>
+    </div>
+    <br>
+    <h2 align="center">Meta Resolver - MR<sup>&reg;</sup></h2>
+    <hr>
+    <div>
+        {{HAS_NS_STATUS_MSG::?Yes:
+        <p>The identifier you requested, <b><i>{{HANDLE::CGIEscape}}</i></b>,  could not be found.</p>
+        <p>{{NS_STATUS_MSG::CGIEscape}}</p>
+        }}
+    </div>
+    <div>
+        {{HAS_NS_STATUS_MSG::!Yes:
+        <!-- No status message was provided by the namespace-->
+        <h3>Error - {{ERROR::CGIEscape}}</h3><p></p>
+
+        <p>The handle you requested -- </p> <p><b><i>{{HANDLE::CGIEscape}}</i></b></p>
+        <p>-- cannot be found.</p>
+    </div>
+</div>
+</body>
+</html>
