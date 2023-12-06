@@ -41,7 +41,9 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-// Added von Ali
+///////////////////////////////////
+// Start - This is extended code - Ali
+///////////////////////////////////
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -50,6 +52,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+///////////////////////////////////
+// End - This is extended code - Ali
+///////////////////////////////////
 
 public class HDLProxy extends HttpServlet {
 
@@ -625,7 +630,7 @@ public class HDLProxy extends HttpServlet {
         return false;
     }
 ///////////////////////////////////////////////////////////////////////////////////
-// Code von Ali
+// Start - This is extended code - Ali
 ///////////////////////////////////////////////////////////////////////////////////
     // @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
@@ -1051,8 +1056,12 @@ public class HDLProxy extends HttpServlet {
             return;
         }
     }
+///////////////////////////////////////////////////////////////////////////////////
+// End - This is extended code - Ali
+///////////////////////////////////////////////////////////////////////////////////
+
 //////////////////////////////////////////////////////////////////////////////////
-// Original Code
+// Start - Original Code
 //////////////////////////////////////////////////////////////////////////////////
 //    @Override
 //    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
@@ -1076,7 +1085,7 @@ public class HDLProxy extends HttpServlet {
 //        doResponse(hdl);
 //    }
 //////////////////////////////////////////////////////////////////////////////////
-// Original Code
+// End - Original Code
 //////////////////////////////////////////////////////////////////////////////////
 
     protected void doResponse(HDLServletRequest hdl, HttpServletResponse resp) throws IOException, ServletException {
@@ -1420,11 +1429,11 @@ public class HDLProxy extends HttpServlet {
             f.setValue("REFERER", hdl.getReferer());
             f.setValue("TRACE", trace);
 
-
-            // This is added code - Ali
-            //**********************************************************************/
+            ///////////////////////////
+            // Start - This is extended code - Ali
+            ///////////////////////////
             String myhandle = hdl.hdl;
-            if (msg == "Not Found") {
+            if (msg.equals("Not Found")) {
                 if (myhandle.contains("@")) {
                     String[] result = hdl.hdl.split("@");
                     myhandle = result[0];
@@ -1433,7 +1442,7 @@ public class HDLProxy extends HttpServlet {
                         myhandle = hdlString[0];
                     }
                 }
-            } else if (msg == "No Values Found") {
+            } else if (msg.equals("No Values Found")) {
                 if (myhandle.contains("@")) {
                     String[] result = hdl.hdl.split("@");
                     myhandle = result[0];
@@ -1444,9 +1453,11 @@ public class HDLProxy extends HttpServlet {
                 }
             }
             f.setValue("MYHANDLE", myhandle);
+            ///////////////////////////
+            // End - This is extended code - Ali
+            ///////////////////////////
+
             //**********************************************************************/
-
-
 
             try {
                 hdl.response.setContentType("text/html; charset=utf-8");
@@ -1659,8 +1670,15 @@ public class HDLProxy extends HttpServlet {
         synchronized (f) {
             f.reset();
             f.setValue("CONTEXT_PATH", getContextPath(hdl));
-            // This is added code - Ali
+
+            ///////////////////////////////////
+            // Start - This is extended code - Ali
+            ///////////////////////////////////
             f.setValue("HANDLE", hdl.params.getParameter("hdl"));
+            /////////////////////////////////
+            // End - This is extended code - Ali
+            /////////////////////////////////
+
             f.output(hdl.response.getOutputStream());
         }
     }

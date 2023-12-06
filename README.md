@@ -2,92 +2,56 @@
 
 
 
-## Getting started
+## Proof of Concept
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+To provide a proof of concept for integrating the functionality of the on-board resolution mechanisem of the Handle Software called Template Handle an idea of extending the source code was developed.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Based on the above idea to simulate the function of the Template Handle and extend the functionality already implemented within PIDMR resolution concept and to provide flexible PID resolution of any type the original Handle Software code was extended.
 
-## Add your files
+The extended code is marked as "This is extended code".
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Local developmemnt
 
+For local development clone the repository to your local machine as follow:
 ```
-cd existing_repo
-git remote add origin https://gitlab-ce.gwdg.de/epic/pidmr-handle-software.git
-git branch -M main
-git push -uf origin main
+git clone https://gitlab-ce.gwdg.de/epic/pidmr-handle-software.git
 ```
 
-## Integrate with your tools
+## Code extension
 
-- [ ] [Set up project integrations](https://gitlab-ce.gwdg.de/epic/pidmr-handle-software/-/settings/integrations)
+Entrance point for routing is defined in [web.xml](https://gitlab-ce.gwdg.de/epic/pidmr-handle-software/-/blob/main/src/main/java/net/handle/apps/servlet_proxy/resources/WEB-INF/web.xml?ref_type=heads) file as follow:
 
-## Collaborate with your team
+```
+<servlet-mapping>
+    <servlet-name>HDLProxy</servlet-name>
+    <url-pattern>/*</url-pattern>
+</servlet-mapping>
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+and HDLProxy servlet takes care of processing the requests, including GET and POST requests, which could be found at:
 
-## Test and Deploy
+```
+/src/main/java/net/handle/apps/servlet_proxy/HDLProxy.java
+```
+POST requests sent via the resolving form are received by the doPost method in the above servlet. Some parameters are sent with the request including the pid (hdl), a resolution mode (display) from either landingpage, metadata or resource and a flag (redirect) for whether to redirect the request to a given url in the database or process the request by the Handle Proxy server itself. The provided flag (redirect) is native to Handle Software itself and is only used for processing Handle PIDs.
 
-Use the built-in continuous integration in GitLab.
+First step is to determine the type of the PID provided by the request. For determination of the PID type the information provided by the PIDMR API for [providers](https://apimr.devel.argo.grnet.gr/v1/providers) is used.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Upon determining the PID type a corresponding handling of the request is executed based on the resolution mode. For landingpage and metadata mode a redirect request is sent to the local PID resolution service API. For resource mode, provided the local provider provides the information, the metadata of the requested PID is fetched, processed and the required resource end point is extracted from the metadata to which the resource mode request is then sent.
 
-***
+For the purpose of adapting the Handle Proxy Server for integrating the resolution function of the Handle Template the extended code has to be complied first using the following command in the root directory of the repository for ubuntu operating system for example.
 
-# Editing this README
+ ```
+./gradlew build
+ ```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Upon compilation a java jar called “handle-9.3.1.jar” is created depending on the version of the underlying Handle Software implemented under
 
-## Suggestions for a good README
+ ```
+/build/libs/handle-9.3.1.jar
+```
+The “handle-9.3.1.jar” of the Handle Proxy server located at
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+handle-9.3.1/lib/ handle-9.3.1.jar
 
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+has to be replaced with the above compiled jar and the Proxy Server should be restarted for the changes to take effect.
