@@ -78,11 +78,6 @@
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
-<!--    <servlet-mapping>-->
-<!--        <servlet-name>HDLProxy</servlet-name>-->
-<!--        <url-pattern>/*</url-pattern>-->
-<!--    </servlet-mapping>-->
-<!--    -->
     <servlet-mapping>
         <servlet-name>net.handle.server.servletcontainer.servlets.UnknownApiServlet</servlet-name>
         <url-pattern>/api/*</url-pattern>
