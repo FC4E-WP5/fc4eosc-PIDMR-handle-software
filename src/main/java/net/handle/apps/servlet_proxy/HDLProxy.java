@@ -138,6 +138,8 @@ public class HDLProxy extends HttpServlet {
     private final String RESOLVING_MODE_METADATA = "metadata";
     private final String RESOLVING_MODE_RESOURCE = "resource";
 
+    private final String RESOLVING_MODE_BIBTEX = "bibtext";
+
     private String pidType = null;
     private String recognizedPid = null;
 
@@ -844,6 +846,9 @@ public class HDLProxy extends HttpServlet {
             case RESOLVING_MODE_RESOURCE:
                 String url = "https://api.crossref.org/works/" + pid;
                 redirectUrl1 = fetchDoiResourceUrl(url, pid, "message", "link");
+                break;
+            case RESOLVING_MODE_BIBTEX:
+                redirectUrl = "https://api.crossref.org/works/" + pid + "/transform/application/x-bibtex";
                 break;
             default:
                 // Handle default case or throw an exception for an unknown display value

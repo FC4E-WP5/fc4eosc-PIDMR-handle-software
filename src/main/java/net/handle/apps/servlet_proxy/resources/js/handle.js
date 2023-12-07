@@ -93,11 +93,13 @@ for (var i=0; i < templateHandleIds.length; i++) {
                 document.getElementById("metadata").disabled=false;
                 document.getElementById("resource").disabled=false;
             }
+            if (identifier.includes("doi:10.")) {
+                document.getElementById("content-negotiation").style.display = "block";
+            }
             document.getElementById("identifier").value = identifier;
 
             if (!identifier.includes("21.")) {
                 document.getElementById("identifier").value = identifier;
-//                document.getElementById("identifier").value = identifier + '?' + "landingpage";
                 document.getElementById("display").value = "landingpage";
 
             } else {
