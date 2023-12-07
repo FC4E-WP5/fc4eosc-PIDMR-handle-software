@@ -7,6 +7,10 @@ body {
     display: none;
 }
 
+#content-negotiation {
+    display: none;
+}
+
 #content {
     width: 100%;
     padding: 20px;

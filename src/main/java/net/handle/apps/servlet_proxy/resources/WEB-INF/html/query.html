@@ -88,8 +88,13 @@
             </div>
             <div>
                 <div class="d-inline"><input id="resource" type=radio class="display" name="display" value="resource"></div>
-                <div class="d-inline" >Resource</div>
+                <div class="d-inline">Resource</div>
             </div>
+            <div id="content-negotiation">
+                <div class="d-inline"><input id="bibtex" type=radio class="display" name="display" value="bibtext"></div>
+                <div class="d-inline">Bibtex</div>
+            </div>
+
         </div>
     </div>
     </div>
@@ -103,6 +108,7 @@
             <th scope="col">Landing Page</th>
             <th scope="col">Metadata</th>
             <th scope="col">Resource</th>
+            <th scope="col">Bibtex</th>
         </tr>
         </thead>
         <tbody>
@@ -183,7 +189,6 @@
                     }
                 } else {
                     $('#identifier').val(identifier);
-<!--                    $('#identifier').val(identifier + '?' + display);-->
                     $('#display').val(display);
                 }
             } else if (display=="metadata" && !identifier.includes("MR@")) {
