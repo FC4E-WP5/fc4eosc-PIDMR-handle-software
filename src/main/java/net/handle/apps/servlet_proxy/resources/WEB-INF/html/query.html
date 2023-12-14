@@ -48,7 +48,11 @@
             </div>
             <div>
                 <div class="d-inline"><input class="id" name="id" type="radio" value="doi:10.3390/s18020479"></div>
-                <div class="d-inline">DOI: doi:10.3390/s18020479</div>
+                <div class="d-inline">Crossref DOI: doi:10.3390/s18020479</div>
+            </div>
+            <div>
+                <div class="d-inline"><input class="id" name="id" type="radio" value="doi:10.5524/100005"></div>
+                <div class="d-inline">Datacite DOI: doi:10.5524/100005</div>
             </div>
             <div>
                 <div class="d-inline"><input class="id" name="id" type="radio" value="swh:1:cnt:94a9ed024d3859793618152ea559a168bbcbb5e2"></div>
@@ -90,9 +94,13 @@
                 <div class="d-inline"><input id="resource" type=radio class="display" name="display" value="resource"></div>
                 <div class="d-inline">Resource</div>
             </div>
-            <div id="content-negotiation">
-                <div class="d-inline"><input id="bibtex" type=radio class="display" name="display" value="bibtext"></div>
+            <div id="content-negotiation-bibtex">
+                <div class="d-inline"><input id="bibtex" type=radio class="display" name="display" value="cn_bibtex"></div>
                 <div class="d-inline">Bibtex</div>
+            </div>
+            <div id="content-negotiation-turtle">
+                <div class="d-inline"><input id="turtle" type=radio class="display" name="display" value="cn_turtle"></div>
+                <div class="d-inline">Turtle</div>
             </div>
 
         </div>
@@ -109,6 +117,7 @@
             <th scope="col">Metadata</th>
             <th scope="col">Resource</th>
             <th scope="col">Bibtex</th>
+            <th scope="col">Turtle</th>
         </tr>
         </thead>
         <tbody>
@@ -118,12 +127,14 @@
             <td>x</td>
             <td>-</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
-            <th scope="row">arXiv</th>
+            <th scope="row"> arXiv</th>
             <td>x</td>
             <td>x</td>
             <td>x</td>
+            <td>-</td>
             <td>-</td>
         </tr>
         <tr>
@@ -132,9 +143,11 @@
             <td>x</td>
             <td>-</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
             <th scope="row">DOI</th>
+            <td>x</td>
             <td>x</td>
             <td>x</td>
             <td>x</td>
@@ -146,6 +159,7 @@
             <td>x</td>
             <td>x</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
             <th scope="row">DE-URN</th>
@@ -153,10 +167,12 @@
             <td>x</td>
             <td>x</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
             <th scope="row">FI-URN</th>
             <td>x</td>
+            <td>-</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -167,6 +183,7 @@
             <td>x</td>
             <td>x</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         </tbody>
     </table>
@@ -174,38 +191,5 @@
 
 <script src="{{CONTEXT_PATH}}/static/js/handle.js" type="text/javascript"></script>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js" type="application/javascript"></script>
-<script type="application/javascript">
-    $(document).ready(function () {
-        $('.display').on('click', function () {
-            var identifier = $("input[type='text'][name='hdl']").val();
-            var display = $("input[type='radio'][name='display']:checked").val();
-            if (!!identifier) {
-                if (identifier.includes("?landingpage")) {
-                    identifier = identifier.split("?landingpage")[0];
-                } else if (identifier.includes("?metadata")) {
-                    identifier = identifier.split("?metadata")[0];
-                } else if (identifier.includes("?resource")) {
-                    identifier = identifier.split("?resource")[0];
-                }
-                if (identifier.includes("21.")) {
-                    $('#identifier').val(identifier);
-                    $('#display').val("");
-                    if (display=="metadata") {
-                        $("input[id=noredirect]").prop('checked', true);
-                    } else {
-                        $("input[id=noredirect]").prop('checked', false);
-                    }
-                } else {
-                    $('#identifier').val(identifier);
-                    $('#display').val(display);
-                }
-            } else if (display=="metadata" && !identifier.includes("MR@")) {
-                $("input[id=noredirect]").prop('checked', true);
-            } else if (display=="landingpage" && !identifier.includes("MR@")) {
-                $("input[id=noredirect]").prop('checked', false);
-            }
-        });
-    });
-</script>
 </body>
 </html>

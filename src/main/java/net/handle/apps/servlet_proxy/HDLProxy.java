@@ -137,9 +137,9 @@ public class HDLProxy extends HttpServlet {
     private final String RESOLVING_MODE_LANDINGPAGE = "landingpage";
     private final String RESOLVING_MODE_METADATA = "metadata";
     private final String RESOLVING_MODE_RESOURCE = "resource";
-
-    private final String RESOLVING_MODE_BIBTEX = "bibtext";
-
+    private final String RESOLVING_MODE_CN = "cn";
+    private final String CN_BIBTEX = "bibtex";
+    private final String CN_TURTLE = "turtle";
     private String pidType = null;
     private String recognizedPid = null;
 
@@ -695,18 +695,20 @@ public class HDLProxy extends HttpServlet {
         String url = "https://apimr.devel.argo.grnet.gr/v1/providers";
         try {
             String jsonContent = fetchContent(url);
-            JsonObject jsonObject = JsonParser.parseString(jsonContent).getAsJsonObject();
-            JsonArray providers = (JsonArray) jsonObject.get("content");
-            providers.forEach(provider -> {
-                JsonArray regexesArray = provider.getAsJsonObject().get("regexes").getAsJsonArray();
-                String pidType = provider.getAsJsonObject().get("type").getAsString();
-                regexesArray.forEach(regexesItem -> {
-                    String regex = regexesItem.toString().replace("\"", "").replace("\\\\", "\\");
-                    if (getPidType(pid, regex)) {
-                        recognizedPid = pidType;
-                    }
+            if (jsonContent != null) {
+                JsonObject jsonObject = JsonParser.parseString(jsonContent).getAsJsonObject();
+                JsonArray providers = (JsonArray) jsonObject.get("content");
+                providers.forEach(provider -> {
+                    JsonArray regexesArray = provider.getAsJsonObject().get("regexes").getAsJsonArray();
+                    String pidType = provider.getAsJsonObject().get("type").getAsString();
+                    regexesArray.forEach(regexesItem -> {
+                        String regex = regexesItem.toString().replace("\"", "").replace("\\\\", "\\");
+                        if (getPidType(pid, regex)) {
+                            recognizedPid = pidType;
+                        }
+                    });
                 });
-            });
+            }
         } catch (Exception e) {
             // Handle the exception here, e.g., log an error message or take corrective action.
         }
@@ -832,23 +834,75 @@ public class HDLProxy extends HttpServlet {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
         }
     }
-
-    private void handleDoi(String pid, String display, HDLServletRequest hdl, HttpServletResponse resp) {
+    private void handleDoi(String pid, String display, HDLServletRequest hdl, HttpServletResponse resp) throws IOException {
         String redirectUrl = null;
-        JsonArray redirectUrl1 = null;
+        JsonArray resourceRedirectUrl = null;
+        JsonElement dataciteResourceRedirectUrl = null;
+        String cnType = null;
+        if (pid.contains("doi:")) {
+            pid = pid.split("doi:")[1];
+        }
+        if (display.contains("cn_")) {
+            cnType = display.split("cn_")[1];
+            display = "cn";
+        }
         switch (display) {
             case RESOLVING_MODE_LANDINGPAGE:
                 redirectUrl = "https://dx.doi.org/" + pid;
                 break;
             case RESOLVING_MODE_METADATA:
-                redirectUrl = "https://api.crossref.org/works/" + pid;
+                String crossrefMetadataUrl = "https://api.crossref.org/works/" + pid;
+                try {
+                    URL apiUrl = new URL(crossrefMetadataUrl);
+                    HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+                    connection.setRequestMethod("GET");
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == 200) {
+                        redirectUrl = crossrefMetadataUrl;
+                    } else {
+                        String dataciteUrl = "https://api.datacite.org/dois/" + pid;
+                        apiUrl = new URL(dataciteUrl);
+                        connection = (HttpURLConnection) apiUrl.openConnection();
+                        connection.setRequestMethod("GET");
+                        responseCode = connection.getResponseCode();
+                        if (responseCode == 200) {
+                            redirectUrl = dataciteUrl;
+                        }
+                    }
+                } catch (Exception e) {
+                    // Handle the exception here, e.g., log an error message or take corrective action.
+                }
                 break;
             case RESOLVING_MODE_RESOURCE:
-                String url = "https://api.crossref.org/works/" + pid;
-                redirectUrl1 = fetchDoiResourceUrl(url, pid, "message", "link");
+                crossrefMetadataUrl = "https://api.crossref.org/works/" + pid;
+                resourceRedirectUrl = fetchCrossrefDoiResourceUrl(crossrefMetadataUrl);
+                if (resourceRedirectUrl == null) {
+                    String dataciteMetadataUrl = "https://api.datacite.org/dois/" + pid;
+                    dataciteResourceRedirectUrl = fetchDataciteDoiResourceUrl(dataciteMetadataUrl);
+                    if (dataciteResourceRedirectUrl != null) {
+                        redirectUrl = dataciteResourceRedirectUrl.toString().replace("\"", "");
+                    }
+
+                }
                 break;
-            case RESOLVING_MODE_BIBTEX:
-                redirectUrl = "https://api.crossref.org/works/" + pid + "/transform/application/x-bibtex";
+            case RESOLVING_MODE_CN:
+                if (cnType != null) {
+                    String mimType = getMimType(cnType);
+                    String crossrefUrl = "https://api.crossref.org/works/" + pid + "/transform/" + mimType;
+                    try {
+                        URL apiUrl = new URL(crossrefUrl);
+                        HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+                        connection.setRequestMethod("GET");
+                        int responseCode = connection.getResponseCode();
+                        if (responseCode == 200) {
+                            redirectUrl = crossrefUrl;
+                        } else {
+                            redirectUrl = "https://data.crosscite.org/" + mimType + pid;
+                        }
+                    } catch (Exception e) {
+                        // Handle the exception here, e.g., log an error message or take corrective action.
+                    }
+                }
                 break;
             default:
                 // Handle default case or throw an exception for an unknown display value
@@ -861,10 +915,10 @@ public class HDLProxy extends HttpServlet {
         }
         if (redirectUrl != null) {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
-        } else if (redirectUrl1 != null) {
-            int size = redirectUrl1.size();
+        } else if (resourceRedirectUrl != null) {
+            int size = resourceRedirectUrl.size();
             if (size == 1) {
-                JsonElement url = redirectUrl1
+                JsonElement url = resourceRedirectUrl
                         .get(0)
                         .getAsJsonObject()
                         .get("URL");
@@ -872,12 +926,11 @@ public class HDLProxy extends HttpServlet {
                 hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
             } else {
                 JsonArray urlJsonArray = new JsonArray();
-                for (JsonElement link : redirectUrl1) {
+                for (JsonElement link : resourceRedirectUrl) {
                     JsonObject linkObject = link.getAsJsonObject();
                     String url = linkObject.get("URL").getAsString();
                     urlJsonArray.add(url);
                 }
-                String jsonArrayString = urlJsonArray.toString();
                 try {
                     resp.setCharacterEncoding("UTF-8");
                     resp.setContentType("application/json");
@@ -888,19 +941,47 @@ public class HDLProxy extends HttpServlet {
             }
         }
     }
+    private String getMimType(String cnType) {
+        String mimType = null;
+        switch (cnType) {
+            case CN_BIBTEX:
+                mimType = "application/x-bibtex/";
+                break;
+            case CN_TURTLE:
+                mimType = "text/turtle/";
+                break;
+            default:
+                break;
+        }
+        return mimType;
+    }
 
-    private JsonArray fetchDoiResourceUrl(String url, String pid, String metadataFirstNode, String metadataSecondNode) {
+    private JsonElement fetchDataciteDoiResourceUrl(String url) {
         try {
             String jsonContent = fetchContent(url);
-            JsonObject jsonObject = JsonParser.parseString(jsonContent).getAsJsonObject();
-            JsonObject messageObject = jsonObject.getAsJsonObject(metadataFirstNode);
-            // Check if the "message" object contains the "links" array
-            if (messageObject.has(metadataSecondNode) && messageObject.get(metadataSecondNode).isJsonArray()) {
-                JsonArray linksArray = messageObject.getAsJsonArray(metadataSecondNode);
-                return linksArray;
-            } else {
-                // Handle the exception here, e.g., log an error message or take corrective action.
-                // Error ("No 'links' array found within the 'message' object.");
+            if (jsonContent != null) {
+                JsonObject jsonObject = JsonParser.parseString(jsonContent).getAsJsonObject();
+                return jsonObject.getAsJsonObject("data").getAsJsonObject("attributes").get("url");
+            }
+        } catch (Exception e) {
+            // Handle the exception here, e.g., log an error message or take corrective action.
+        }
+        return null;
+    }
+
+    private JsonArray fetchCrossrefDoiResourceUrl(String url) {
+        try {
+            String jsonContent = fetchContent(url);
+            if (jsonContent != null) {
+                JsonObject jsonObject = JsonParser.parseString(jsonContent).getAsJsonObject();
+                JsonObject messageObject = jsonObject.getAsJsonObject("message");
+                // Check if the "message" object contains the "links" array
+                if (messageObject.has("link") && messageObject.get("link").isJsonArray()) {
+                    return messageObject.getAsJsonArray("link");
+                } else {
+                    // Handle the exception here, e.g., log an error message or take corrective action.
+                    // Error ("No 'links' array found within the 'message' object.");
+                }
             }
         } catch (Exception e) {
             // Handle the exception here, e.g., log an error message or take corrective action.
@@ -923,8 +1004,7 @@ public class HDLProxy extends HttpServlet {
                 }
                 reader.close();
                 connection.disconnect();
-                String jsonContent = content.toString();
-                return jsonContent;
+                return content.toString();
             } else {
                 // Handle the exception here, e.g., log an error message or take corrective action.
                 // Error: ("Failed to fetch data. HTTP response code: " + responseCode)
@@ -984,39 +1064,41 @@ public class HDLProxy extends HttpServlet {
             case RESOLVING_MODE_RESOURCE:
                 String metadataUrl = "https://zenodo.org/api/records/" + documentId;
                 String jsonContent = fetchContent(metadataUrl);
-                JsonObject jsonObject = JsonParser.parseString(jsonContent).getAsJsonObject();
-                if (jsonObject.has("files") && jsonObject.get("files").isJsonArray()) {
-                    metadataFiles = jsonObject.getAsJsonArray("files");
-                } else {
-                    // Handle the exception here, e.g., log an error message or take corrective action.
-                    // Error ("No 'links' array found within the 'message' object.");
-                }
-                if (redirectUrl != null) {
-                    hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
-                } else if (metadataFiles != null) {
-                    int size = metadataFiles.size();
-                    if (size == 1) {
-                        JsonElement url1 = metadataFiles
-                                .get(0)
-                                .getAsJsonObject()
-                                .get("links")
-                                .getAsJsonObject()
-                                .get("self");
-                        redirectUrl = url1.toString().replace("\"", "");
+
+                if (jsonContent != null) {
+
+                    JsonObject jsonObject = JsonParser.parseString(jsonContent).getAsJsonObject();
+                    if (jsonObject.has("files") && jsonObject.get("files").isJsonArray()) {
+                        metadataFiles = jsonObject.getAsJsonArray("files");
                     } else {
-                        JsonArray urlJsonArray = new JsonArray();
-                        for (JsonElement link : metadataFiles) {
-                            JsonObject linkObject = link.getAsJsonObject().get("links").getAsJsonObject();
-                            String url2 = linkObject.get("self").getAsString();
-                            urlJsonArray.add(url2);
-                        }
-                        String jsonArrayString = urlJsonArray.toString();
-                        try {
-                            resp.setCharacterEncoding("UTF-8");
-                            resp.setContentType("application/json");
-                            resp.getWriter().println(jsonArrayString);
-                        } catch (IOException e) {
-                            // Handle the exception here, e.g., log an error message or take corrective action.
+                        // Handle the exception here, e.g., log an error message or take corrective action.
+                        // Error ("No 'links' array found within the 'message' object.");
+                    }
+                    if (metadataFiles != null) {
+                        int size = metadataFiles.size();
+                        if (size == 1) {
+                            JsonElement url1 = metadataFiles
+                                    .get(0)
+                                    .getAsJsonObject()
+                                    .get("links")
+                                    .getAsJsonObject()
+                                    .get("self");
+                            redirectUrl = url1.toString().replace("\"", "");
+                        } else {
+                            JsonArray urlJsonArray = new JsonArray();
+                            for (JsonElement link : metadataFiles) {
+                                JsonObject linkObject = link.getAsJsonObject().get("links").getAsJsonObject();
+                                String url2 = linkObject.get("self").getAsString();
+                                urlJsonArray.add(url2);
+                            }
+                            String jsonArrayString = urlJsonArray.toString();
+                            try {
+                                resp.setCharacterEncoding("UTF-8");
+                                resp.setContentType("application/json");
+                                resp.getWriter().println(jsonArrayString);
+                            } catch (IOException e) {
+                                // Handle the exception here, e.g., log an error message or take corrective action.
+                            }
                         }
                     }
                 }

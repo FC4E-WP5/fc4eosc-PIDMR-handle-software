@@ -94,14 +94,17 @@ for (var i=0; i < templateHandleIds.length; i++) {
                 document.getElementById("resource").disabled=false;
             }
             if (identifier.includes("doi:10.")) {
-                document.getElementById("content-negotiation").style.display = "block";
+                document.getElementById("content-negotiation-bibtex").style.display = "block";
+                document.getElementById("content-negotiation-turtle").style.display = "block";
+            } else {
+                document.getElementById("content-negotiation-bibtex").style.display = "none";
+                document.getElementById("content-negotiation-turtle").style.display = "none";
             }
             document.getElementById("identifier").value = identifier;
 
             if (!identifier.includes("21.")) {
                 document.getElementById("identifier").value = identifier;
                 document.getElementById("display").value = "landingpage";
-
             } else {
                 document.getElementById("identifier").value = identifier;
             }
@@ -111,3 +114,24 @@ for (var i=0; i < templateHandleIds.length; i++) {
     }
 }
 
+var displayElements = document.getElementsByClassName("display");
+for (var i = 0; i < displayElements.length; i++) {
+    displayElements[i].onclick = function(){
+        let display = this.value;
+        var identifier = document.querySelector("input[type='text'][name='hdl']").value;
+        if (!!identifier) {
+            if (identifier.includes("21.")) {
+                document.getElementById('identifier').value = identifier;
+                document.getElementById('display').value = "";
+                if (display == "metadata") {
+                    document.getElementById('noredirect').checked = true;
+                } else {
+                    document.getElementById('noredirect').checked = false;
+                }
+            } else {
+                document.getElementById('identifier').value = identifier;
+                document.getElementById('display').value = display;
+            }
+        }
+    }
+}
