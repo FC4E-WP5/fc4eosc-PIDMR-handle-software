@@ -15,6 +15,13 @@ body {
     display: none;
 }
 
+#content-negotiation-rdf {
+    display: none;
+}
+
+#content-negotiation-title {
+    display: none;
+}
 #content {
     width: 100%;
     padding: 20px;
