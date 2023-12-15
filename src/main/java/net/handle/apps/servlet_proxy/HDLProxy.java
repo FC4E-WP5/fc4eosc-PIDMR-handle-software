@@ -140,6 +140,7 @@ public class HDLProxy extends HttpServlet {
     private final String RESOLVING_MODE_CN = "cn";
     private final String CN_BIBTEX = "bibtex";
     private final String CN_TURTLE = "turtle";
+    private final String CN_RDF = "rdf";
     private String pidType = null;
     private String recognizedPid = null;
 
@@ -949,6 +950,9 @@ public class HDLProxy extends HttpServlet {
                 break;
             case CN_TURTLE:
                 mimType = "text/turtle/";
+                break;
+            case CN_RDF:
+                mimType = "application/rdf+xml/";
                 break;
             default:
                 break;
