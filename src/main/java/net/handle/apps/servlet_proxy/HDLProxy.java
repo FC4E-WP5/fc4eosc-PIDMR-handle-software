@@ -141,6 +141,7 @@ public class HDLProxy extends HttpServlet {
     private final String CN_BIBTEX = "bibtex";
     private final String CN_TURTLE = "turtle";
     private final String CN_RDF = "rdf";
+    private final String CN_CITATION = "citation";
     private String pidType = null;
     private String recognizedPid = null;
 
@@ -883,7 +884,6 @@ public class HDLProxy extends HttpServlet {
                     if (dataciteResourceRedirectUrl != null) {
                         redirectUrl = dataciteResourceRedirectUrl.toString().replace("\"", "");
                     }
-
                 }
                 break;
             case RESOLVING_MODE_CN:
@@ -953,6 +953,9 @@ public class HDLProxy extends HttpServlet {
                 break;
             case CN_RDF:
                 mimType = "application/rdf+xml/";
+                break;
+            case CN_CITATION:
+                mimType = "application/vnd.citationstyles.csl+json/";
                 break;
             default:
                 break;
