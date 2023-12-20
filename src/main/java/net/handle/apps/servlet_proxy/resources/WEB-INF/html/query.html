@@ -99,15 +99,19 @@
             </div>
             <div id="content-negotiation-bibtex">
                 <div class="d-inline"><input id="bibtex" type=radio class="display" name="display" value="cn_bibtex"></div>
-                <div class="d-inline">Bibtex</div>
+                <div class="d-inline">BibTeX</div>
+            </div>
+            <div id="content-negotiation-citation">
+                <div class="d-inline"><input id="citation" type=radio class="display" name="display" value="cn_citation"></div>
+                <div class="d-inline">Citeproc JSON</div>
             </div>
             <div id="content-negotiation-rdf">
                 <div class="d-inline"><input id="rdf" type=radio class="display" name="display" value="cn_rdf"></div>
-                <div class="d-inline">RDF</div>
+                <div class="d-inline">RDF XML</div>
             </div>
             <div id="content-negotiation-turtle">
                 <div class="d-inline"><input id="turtle" type=radio class="display" name="display" value="cn_turtle"></div>
-                <div class="d-inline">Turtle</div>
+                <div class="d-inline">RDF Turtle</div>
             </div>
         </div>
     </div>
@@ -122,9 +126,10 @@
             <th scope="col">Landing Page</th>
             <th scope="col">Metadata</th>
             <th scope="col">Resource</th>
-            <th scope="col">Bibtex</th>
-            <th scope="col">RDF</th>
-            <th scope="col">Turtle</th>
+            <th scope="col">BibTeX</th>
+            <th scope="col">Citeproc JSON</th>
+            <th scope="col">RDF XML</th>
+            <th scope="col">RDF Turtle</th>
         </tr>
         </thead>
         <tbody>
@@ -132,6 +137,7 @@
             <th scope="row">ARK</th>
             <td>x</td>
             <td>x</td>
+            <td>-</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -145,6 +151,7 @@
             <td>-</td>
             <td>-</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
             <th scope="row">Handle</th>
@@ -154,9 +161,11 @@
             <td>-</td>
             <td>-</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
             <th scope="row">DOI</th>
+            <td>x</td>
             <td>x</td>
             <td>x</td>
             <td>x</td>
@@ -172,12 +181,14 @@
             <td>-</td>
             <td>-</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
             <th scope="row">DE-URN</th>
             <td>x</td>
             <td>x</td>
             <td>x</td>
+            <td>-</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -190,12 +201,14 @@
             <td>-</td>
             <td>-</td>
             <td>-</td>
+            <td>-</td>
         </tr>
         <tr>
             <th scope="row">zenodo PID</th>
             <td>x</td>
             <td>x</td>
             <td>x</td>
+            <td>-</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>

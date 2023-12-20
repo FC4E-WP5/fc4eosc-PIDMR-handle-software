@@ -96,11 +96,13 @@ for (var i=0; i < templateHandleIds.length; i++) {
             if (identifier.includes("doi:10.")) {
                 document.getElementById("content-negotiation-title").style.display = "block";
                 document.getElementById("content-negotiation-bibtex").style.display = "block";
+                document.getElementById("content-negotiation-citation").style.display = "block";
                 document.getElementById("content-negotiation-turtle").style.display = "block";
                 document.getElementById("content-negotiation-rdf").style.display = "block";
             } else {
                 document.getElementById("content-negotiation-title").style.display = "none";
                 document.getElementById("content-negotiation-bibtex").style.display = "none";
+                document.getElementById("content-negotiation-citation").style.display = "none";
                 document.getElementById("content-negotiation-turtle").style.display = "none";
                 document.getElementById("content-negotiation-rdf").style.display = "none";
             }
