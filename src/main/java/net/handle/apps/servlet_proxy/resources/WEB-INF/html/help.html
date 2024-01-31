@@ -15,6 +15,7 @@
     <br>
     <h2 class="text-center">Meta Resolver - MR</h2>
     <hr>
+    {{HAS_ERROR_MSG::?Yes:
     <div>
         <div class="alert alert-danger" role="alert">
             <strong>Identifier Error!</strong> {{ERROR::CGIEscape}}
@@ -25,6 +26,7 @@
             Refer to the following table for details of hosted providers including services provided.
         </div>
     </div>
+    }}
     <h3>Resolving Matrix</h3>
 
     <table class="table table-bordered">
