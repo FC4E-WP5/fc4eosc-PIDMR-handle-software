@@ -52,6 +52,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 ///////////////////////////////////
 // End - This is extended code - Ali
 ///////////////////////////////////
@@ -75,7 +79,6 @@ public class HDLProxy extends HttpServlet {
     public static final byte MSG_INVALID_REQUEST[] = Util.encodeString("Invalid request");
 
     Map<String, String> handleLinkPrefixMap = new HashMap<>();
-
 
     HashMap<String, ArrayList<HashMap<String, String>>> metaresolverMappingConfigs = new HashMap<>();
 
@@ -725,34 +728,54 @@ public class HDLProxy extends HttpServlet {
         }
     }
 
-    private String checkPidType(String pid) {
-        String url = "https://api.pidmr.devel.argo.grnet.gr/v1/providers";
-        try {
-            String jsonContent = fetchContent(url);
-            if (jsonContent != null) {
-                JsonObject jsonObject = JsonParser.parseString(jsonContent).getAsJsonObject();
-                JsonArray providers = (JsonArray) jsonObject.get("content");
-                providers.forEach(provider -> {
-                    JsonArray regexesArray = provider.getAsJsonObject().get("regexes").getAsJsonArray();
-                    String pidType = provider.getAsJsonObject().get("type").getAsString();
-                    regexesArray.forEach(regexesItem -> {
-                        String regex = regexesItem.toString().replace("\"", "").replace("\\\\", "\\");
-                        if (!regex.startsWith("^")) {
-                            regex = "^" + regex;
-                        }
-                        if (!regex.endsWith("$")) {
-                            regex = regex + "$";
-                        }
-                        if (getPidType(pid, regex)) {
-                            recognizedPid = pidType;
-                        }
-                    });
-                });
+    private String checkPidType(String pid) throws IOException {
+        // This assumes that the handle proxy server redides in /opt/hsj directory
+        String providersFilePath = "/opt/hsj/handle-9.3.1/providers/providers.json";
+        String providersBackupFilePath = "/opt/hsj/handle-9.3.1/providers/providers_backup.json";
+        File providersFile = new File(providersFilePath);
+        File providersBackupFile = new File(providersBackupFilePath);
+        recognizedPid = null;
+        if (providersFile.exists() || providersBackupFile.exists()) {
+            if (!providersFile.exists()) {
+                providersFilePath = providersBackupFilePath;
             }
-        } catch (Exception e) {
-            // Handle the exception here, e.g., log an error message or take corrective action.
+            try {
+                JsonObject jsonContent = readJsonFile(providersFilePath);
+                if (jsonContent != null) {
+                    JsonArray providers = (JsonArray) jsonContent.get("content");
+                    providers.forEach(provider -> {
+                        JsonArray regexesArray = provider.getAsJsonObject().get("regexes").getAsJsonArray();
+                        String pidType = provider.getAsJsonObject().get("type").getAsString();
+                        regexesArray.forEach(regexesItem -> {
+                            String regex = regexesItem.toString().replace("\"", "").replace("\\\\", "\\");
+                            if (!regex.startsWith("^")) {
+                                regex = "^" + regex;
+                            }
+                            if (!regex.endsWith("$")) {
+                                regex = regex + "$";
+                            }
+                            if (getPidType(pid, regex)) {
+                                recognizedPid = pidType;
+                            }
+                        });
+                    });
+                }
+            } catch (Exception e) {
+                // Handle the exception here, e.g., log an error message or take corrective action.
+            }
         }
         return recognizedPid;
+    }
+
+    private JsonObject readJsonFile(String providersFilePath) throws IOException {
+        Path path = Paths.get(providersFilePath);
+        if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            throw new FileNotFoundException("Provider file not found or not a regular file: " + providersFilePath);
+        }
+        try (FileReader reader = new FileReader(providersFilePath)) {
+            JsonParser jsonParser = new JsonParser();
+            return jsonParser.parse(reader).getAsJsonObject();
+        }
     }
 
     private boolean getPidType(String pid, String regex) {
