@@ -606,20 +606,6 @@ public class HDLProxy extends HttpServlet {
         }
     }
 
-    @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        if (handleSpecial(req, resp)) return;
-        HDLServletRequest hdl = new HDLServletRequest(this, req, resp, resolver);
-        doResponse(hdl, resp);
-    }
-
-//    @Override
-//    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-//        if (handleSpecial(req, resp)) return;
-//        HDLServletRequest hdlReq = new HDLServletRequest(this, req, resp, resolver);
-//        doResponse(hdlReq);
-//    }
-
     protected boolean handleSpecial(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String servletPath = req.getServletPath();
         String pathInfo = req.getPathInfo();
@@ -636,65 +622,111 @@ public class HDLProxy extends HttpServlet {
 ///////////////////////////////////////////////////////////////////////////////////
 // Start - This is extended code - Ali
 ///////////////////////////////////////////////////////////////////////////////////
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        HDLServletRequest hdl = new HDLServletRequest(this, req, resp, resolver);
+        if (!hdl.hdl.contains("MR@")) {
+            if (req.getQueryString() != null) {
+                if (req.getQueryString().contains("?")) {
+                    pid = req.getQueryString().split("\\?")[0];
+                    display = req.getQueryString().split("\\?")[1];
+                    if (display == null) {
+                        display = RESOLVING_MODE_LANDINGPAGE;
+                    }
+                    if (pid != null) {
+                        pidType = checkPidType(pid);
+                        if (pidType != null) {
+                            if (!pidType.equals("21")) {
+                                dispatchPidHandlingMode(pid, display, hdl, pidType, resp);
+                                return;
+                            }
+                        } else {
+                            resp.setCharacterEncoding("UTF-8");
+                            resp.setContentType("application/json");
+                            resp.getWriter().println("{\"error\": \"pid type can not be determind.\"}");
+                        }
+                    }
+                }
+            }
+        }
+        if (handleSpecial(req, resp)) return;
+        doResponse(hdl, resp);
+    }
+
     // @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         HDLServletRequest hdl = new HDLServletRequest(this, req, resp, resolver);
         pidType = checkPidType(hdl.hdl);
-        if (!pidType.equals("21")) {
-            display = hdl.params.getParameter("display");
-            pid = hdl.hdl;
-            switch (pidType) {
-                case "arXiv":
-                    handleArxiv(pid, display, hdl);
-                    break;
-                case "ark":
-                    handleArk(pid, display, hdl);
-                    break;
-                case "urn:nbn:de":
-                    handleUrnDe(pid, display, hdl);
-                    break;
-                case "urn:nbn:fi":
-                    handleUrnFi(pid, display, hdl);
-                    break;
-                case "doi":
-                    handleDoi(pid, display, hdl, resp);
-                    break;
-                case "swh":
-                    String[] swhPidParts = pid.split(":");
-                    String swhType = swhPidParts[2];
-                    String swhHash = swhPidParts[3];
-                    if (display.equals(RESOLVING_MODE_RESOURCE)) {
-                        handleSwh(swhHash, display, hdl);
-                    } else {
-                        handleSwh(pid, display, hdl);
-                    }
-                    break;
-                case "10.5281/zenodo":
-                    handleZenodo(pid, display, hdl, resp);
-                    break;
-                default:
-                    try {
-                        resp.setCharacterEncoding("UTF-8");
-                        resp.setContentType("text/html");
-                        resp.getWriter().println("pid type not defined.");
-                        resp.getWriter().println(pidType.getClass().getSimpleName());
-                        return;
-                    } catch (IOException e) {
-                        // Handle the exception here, e.g., log an error message or take corrective action.
-                    }
-                    break;
+        if (pidType != null) {
+            if (!pidType.equals("21")) {
+                display = hdl.params.getParameter("display");
+                if (display == null) {
+                    display = RESOLVING_MODE_LANDINGPAGE;
+                }
+                pid = hdl.hdl;
+                dispatchPidHandlingMode(pid, display, hdl, pidType, resp);
+            } else {
+                try {
+                    handleNonMatchingRequest(req, resp, hdl);
+                } catch (Exception e) {
+                    // Handle the exception here, e.g., log an error message or take corrective action.
+                }
             }
         } else {
-            try {
-                handleNonMatchingRequest(req, resp, hdl);
-            } catch (Exception e) {
-                // Handle the exception here, e.g., log an error message or take corrective action.
-            }
+            resp.setCharacterEncoding("UTF-8");
+            resp.setContentType("application/json");
+            resp.getWriter().println("{\"error\": \"pid type can not be determind.\"}");
+        }
+    }
+
+    private void dispatchPidHandlingMode(String pid, String display, HDLServletRequest hdl, String pidType, HttpServletResponse resp) throws IOException {
+        switch (pidType) {
+            case "arXiv":
+                handleArxiv(pid, display, hdl);
+                break;
+            case "ark":
+                handleArk(pid, display, hdl);
+                break;
+            case "urn:nbn:de":
+                handleUrnDe(pid, display, hdl);
+                break;
+            case "urn:nbn:fi":
+                handleUrnFi(pid, display, hdl);
+                break;
+            case "doi":
+                handleDoi(pid, display, hdl, resp);
+                break;
+            case "swh":
+                String[] swhPidParts = pid.split(":");
+                String swhType = swhPidParts[2];
+                String swhHash = swhPidParts[3];
+                if (display.equals(RESOLVING_MODE_RESOURCE)) {
+                    handleSwh(swhHash, display, hdl);
+                } else {
+                    handleSwh(pid, display, hdl);
+                }
+                break;
+            case "10.5281/zenodo":
+                handleZenodo(pid, display, hdl, resp);
+                break;
+            default:
+                try {
+                    resp.setCharacterEncoding("UTF-8");
+                    resp.setContentType("text/html");
+                    resp.getWriter().println("pid type not defined.");
+                    resp.getWriter().println("<br>");
+                    resp.getWriter().println("pid:" + pid);
+                    resp.getWriter().println("<br>");
+                    resp.getWriter().println("pid type:" + pidType);
+                    return;
+                } catch (IOException e) {
+                    // Handle the exception here, e.g., log an error message or take corrective action.
+                }
+                break;
         }
     }
 
     private String checkPidType(String pid) {
-        String url = "https://apimr.devel.argo.grnet.gr/v1/providers";
+        String url = "https://api.pidmr.devel.argo.grnet.gr/v1/providers";
         try {
             String jsonContent = fetchContent(url);
             if (jsonContent != null) {
@@ -705,6 +737,12 @@ public class HDLProxy extends HttpServlet {
                     String pidType = provider.getAsJsonObject().get("type").getAsString();
                     regexesArray.forEach(regexesItem -> {
                         String regex = regexesItem.toString().replace("\"", "").replace("\\\\", "\\");
+                        if (!regex.startsWith("^")) {
+                            regex = "^" + regex;
+                        }
+                        if (!regex.endsWith("$")) {
+                            regex = regex + "$";
+                        }
                         if (getPidType(pid, regex)) {
                             recognizedPid = pidType;
                         }
@@ -751,7 +789,7 @@ public class HDLProxy extends HttpServlet {
         String redirectUrl = null;
         switch (display) {
             case RESOLVING_MODE_LANDINGPAGE:
-                redirectUrl = "https://arxiv.org/abs/" + pid;
+                redirectUrl = "https://arxiv.org/abs/" + pid.substring(6);
                 break;
             case RESOLVING_MODE_METADATA:
                 String id = pid.split(":")[1];
@@ -826,7 +864,7 @@ public class HDLProxy extends HttpServlet {
             default:
                 // Handle default case or throw an exception for an unknown display value
                 try {
-                    returnHelpPage(hdl);
+                    returnHelpPage(hdl, pid, display);
                 } catch (IOException e) {
                     // Handle the exception here, e.g., log an error message or take corrective action.
                 }
@@ -908,7 +946,7 @@ public class HDLProxy extends HttpServlet {
             default:
                 // Handle default case or throw an exception for an unknown display value
                 try {
-                    returnHelpPage(hdl);
+                    returnHelpPage(hdl, pid, display);
                 } catch (IOException e) {
                     // Handle the exception here, e.g., log an error message or take corrective action.
                 }
@@ -1035,7 +1073,7 @@ public class HDLProxy extends HttpServlet {
             default:
                 // Handle default case or throw an exception for an unknown display value
                 try {
-                    returnHelpPage(hdl);
+                    returnHelpPage(hdl, pid, display);
                 } catch (IOException e) {
                     // Handle the exception here, e.g., log an error message or take corrective action.
                 }
@@ -1056,7 +1094,7 @@ public class HDLProxy extends HttpServlet {
             documentId = matcher.group(1);
         } else {
             // Handle the exception here, e.g., log an error message or take corrective action.
-            // Errot ("No match found");
+            // Error ("No match found");
         }
         String redirectUrl = null;
         JsonArray redirectUrl1 = null;
@@ -1113,7 +1151,7 @@ public class HDLProxy extends HttpServlet {
             default:
                 // Handle default case or throw an exception for an unknown display value
                 try {
-                    returnHelpPage(hdl);
+                    returnHelpPage(hdl, pid, display);
                 } catch (IOException e) {
                     // Handle the exception here, e.g., log an error message or take corrective action.
                 }
@@ -1153,42 +1191,13 @@ public class HDLProxy extends HttpServlet {
 ///////////////////////////////////////////////////////////////////////////////////
 // End - This is extended code - Ali
 ///////////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////////
-// Start - Original Code
-//////////////////////////////////////////////////////////////////////////////////
-//    @Override
-//    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-//        String accept = req.getHeader("Accept");
-//        String contentType = req.getContentType();
-//        if (accept != null && accept.toUpperCase().indexOf(Common.HDL_MIME_TYPE.toUpperCase()) >= 0 && contentType != null && contentType.toUpperCase().contains(Common.HDL_MIME_TYPE.toUpperCase())) {
-//            RequestDispatcher dispatcher = getServletContext().getNamedDispatcher(NativeServlet.class.getName());
-//            if (dispatcher != null) {
-//                dispatcher.forward(req, resp);
-//                return;
-//            } else {
-//                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//                resp.setCharacterEncoding("UTF-8");
-//                resp.setContentType("text/plain");
-//                resp.getWriter().println("Unable to dispatch native handle request");
-//                return;
-//            }
-//        }
-//
-//        HDLServletRequest hdl = new HDLServletRequest(this, req, resp, resolver);
-//        doResponse(hdl);
-//    }
-//////////////////////////////////////////////////////////////////////////////////
-// End - Original Code
-//////////////////////////////////////////////////////////////////////////////////
-
     protected void doResponse(HDLServletRequest hdl, HttpServletResponse resp) throws IOException, ServletException {
         if (hdl.hdl == null || hdl.hdl.length() <= 0) {
             returnQueryPage(hdl);
             return;
         }
         if (hdl.hdl.equals("help.html")) {
-            returnHelpPage(hdl);
+            returnHelpPage(hdl, "", "");
             return;
         }
 
@@ -1746,7 +1755,7 @@ public class HDLProxy extends HttpServlet {
         }
     }
 
-    private void returnHelpPage(HDLServletRequest hdl) throws IOException {
+    private void returnHelpPage(HDLServletRequest hdl, String pid, String display) throws IOException {
         String redirect = helpRedirect.get(hdl.req.getServerName().toLowerCase());
         if (redirect == null) redirect = helpRedirect.get("default");
         if (redirect != null) {
@@ -1764,15 +1773,20 @@ public class HDLProxy extends HttpServlet {
         synchronized (f) {
             f.reset();
             f.setValue("CONTEXT_PATH", getContextPath(hdl));
-
             ///////////////////////////////////
             // Start - This is extended code - Ali
             ///////////////////////////////////
-            f.setValue("HANDLE", hdl.params.getParameter("hdl"));
+            String handle = hdl.params.getParameter("hdl");
+            if (handle == null) handle = pid;
+            f.setValue("HANDLE", handle);
+            f.setValue("DISPLAY", display);
+            f.setValue("HAS_ERROR_MSG", "Yes");
+            if (display != null) {
+                f.setValue("ERROR", display + " display mode is not provided by the provider");
+            }
             /////////////////////////////////
             // End - This is extended code - Ali
             /////////////////////////////////
-
             f.output(hdl.response.getOutputStream());
         }
     }
