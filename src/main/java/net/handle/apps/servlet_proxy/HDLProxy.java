@@ -711,6 +711,9 @@ public class HDLProxy extends HttpServlet {
             case "10.5281/zenodo":
                 handleZenodo(pid, display, hdl, resp);
                 break;
+            case "orcid":
+                handleOrcid(pid, display, hdl);
+                break;
             default:
                 try {
                     resp.setCharacterEncoding("UTF-8");
@@ -1003,6 +1006,28 @@ public class HDLProxy extends HttpServlet {
             }
         }
     }
+
+    private void handleOrcid(String pid, String display, HDLServletRequest hdl) {
+        // Handle URN FI URLs
+        String redirectUrl = null;
+        switch (display) {
+            case RESOLVING_MODE_LANDINGPAGE:
+                redirectUrl = "https://orcid.org/" + pid;
+                break;
+            default:
+                // Handle default case or throw an exception for an unknown display value
+                try {
+                    returnHelpPage(hdl, pid, display);
+                } catch (IOException e) {
+                    // Handle the exception here, e.g., log an error message or take corrective action.
+                }
+                break;
+        }
+        if (redirectUrl != null) {
+            hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
+        }
+    }
+
     private String getMimType(String cnType) {
         String mimType = null;
         switch (cnType) {
