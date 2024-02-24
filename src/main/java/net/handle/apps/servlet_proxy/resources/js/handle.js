@@ -30,6 +30,10 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=true;
         }
+        if (identifier.match(/^([a-z][a-z\-]*(?:\.[a-z][a-z\-]*)?(?:\.[0-9]*)?)$/)) {
+            document.getElementById("metadata").disabled=false;
+            document.getElementById("resource").disabled=true;
+        }
         document.getElementById("metadata").disabled=true;
         document.getElementById("resource").disabled=true;
     }
@@ -97,6 +101,10 @@ for (var i=0; i < templateHandleIds.length; i++) {
             }
             if (identifier.match(/^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/)) {
                 document.getElementById("metadata").disabled=true;
+                document.getElementById("resource").disabled=true;
+            }
+            if (identifier.match(/^([a-z][a-z\-]*(?:\.[a-z][a-z\-]*)?(?:\.[0-9]*)?)$/)) {
+                document.getElementById("metadata").disabled=false;
                 document.getElementById("resource").disabled=true;
             }
             if (identifier.includes("doi:10.") && !identifier.includes("zenodo")) {
