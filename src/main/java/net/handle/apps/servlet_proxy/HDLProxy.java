@@ -629,9 +629,9 @@ public class HDLProxy extends HttpServlet {
         HDLServletRequest hdl = new HDLServletRequest(this, req, resp, resolver);
         if (!hdl.hdl.contains("MR@")) {
             if (req.getQueryString() != null) {
-                if (req.getQueryString().contains("?")) {
-                    pid = req.getQueryString().split("\\?")[0];
-                    display = req.getQueryString().split("\\?")[1];
+                if (req.getQueryString().contains("&")) {
+                    pid = req.getQueryString().split("&")[0];
+                    display = req.getQueryString().split("&")[1];
                     if (display == null) {
                         display = RESOLVING_MODE_LANDINGPAGE;
                     }
@@ -639,7 +639,11 @@ public class HDLProxy extends HttpServlet {
                         pidType = checkPidType(pid);
                         if (pidType != null) {
                             if (!pidType.equals("21")) {
-                                dispatchPidHandlingMode(pid, display, hdl, pidType, resp);
+                                try {
+                                    dispatchPidHandlingMode(pid, display, hdl, pidType, resp);
+                                } catch (HandleException e) {
+                                    throw new RuntimeException(e);
+                                }
                                 return;
                             }
                         } else {
@@ -666,7 +670,11 @@ public class HDLProxy extends HttpServlet {
                     display = RESOLVING_MODE_LANDINGPAGE;
                 }
                 pid = hdl.hdl;
-                dispatchPidHandlingMode(pid, display, hdl, pidType, resp);
+                try {
+                    dispatchPidHandlingMode(pid, display, hdl, pidType, resp);
+                } catch (HandleException e) {
+                    throw new RuntimeException(e);
+                }
             } else {
                 try {
                     handleNonMatchingRequest(req, resp, hdl);
@@ -681,7 +689,7 @@ public class HDLProxy extends HttpServlet {
         }
     }
 
-    private void dispatchPidHandlingMode(String pid, String display, HDLServletRequest hdl, String pidType, HttpServletResponse resp) throws IOException {
+    private void dispatchPidHandlingMode(String pid, String display, HDLServletRequest hdl, String pidType, HttpServletResponse resp) throws IOException, ServletException, HandleException {
         switch (pidType) {
             case "arXiv":
                 handleArxiv(pid, display, hdl);
@@ -714,6 +722,9 @@ public class HDLProxy extends HttpServlet {
             case "orcid":
                 handleOrcid(pid, display, hdl);
                 break;
+            case "zbMATH":
+                handleZbmath(pid, display, hdl);
+                break;
             default:
                 try {
                     resp.setCharacterEncoding("UTF-8");
@@ -733,8 +744,8 @@ public class HDLProxy extends HttpServlet {
 
     private String checkPidType(String pid) throws IOException {
         // This assumes that the handle proxy server redides in /opt/hsj directory
-        String providersFilePath = "/opt/hsj/handle-9.3.1/providers/providers.json";
-        String providersBackupFilePath = "/opt/hsj/handle-9.3.1/providers/providers_backup.json";
+        String providersFilePath = "/home/providers/providers.json";
+        String providersBackupFilePath = "/home/providers/providers_backup.json";
         File providersFile = new File(providersFilePath);
         File providersBackupFile = new File(providersBackupFilePath);
         recognizedPid = null;
@@ -900,6 +911,7 @@ public class HDLProxy extends HttpServlet {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
         }
     }
+
     private void handleDoi(String pid, String display, HDLServletRequest hdl, HttpServletResponse resp) throws IOException {
         String redirectUrl = null;
         JsonArray resourceRedirectUrl = null;
@@ -926,13 +938,13 @@ public class HDLProxy extends HttpServlet {
                     if (responseCode == 200) {
                         redirectUrl = crossrefMetadataUrl;
                     } else {
-                        String dataciteUrl = "https://api.datacite.org/dois/" + pid;
-                        apiUrl = new URL(dataciteUrl);
+                        String dataciteMetadataUrl = "https://api.datacite.org/dois/" + pid;
+                        apiUrl = new URL(dataciteMetadataUrl);
                         connection = (HttpURLConnection) apiUrl.openConnection();
                         connection.setRequestMethod("GET");
                         responseCode = connection.getResponseCode();
                         if (responseCode == 200) {
-                            redirectUrl = dataciteUrl;
+                            redirectUrl = dataciteMetadataUrl;
                         }
                     }
                 } catch (Exception e) {
@@ -1006,7 +1018,7 @@ public class HDLProxy extends HttpServlet {
             }
         }
     }
-
+    
     private void handleOrcid(String pid, String display, HDLServletRequest hdl) {
         // Handle URN FI URLs
         String redirectUrl = null;
@@ -1021,6 +1033,25 @@ public class HDLProxy extends HttpServlet {
                 } catch (IOException e) {
                     // Handle the exception here, e.g., log an error message or take corrective action.
                 }
+                break;
+        }
+        if (redirectUrl != null) {
+            hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
+        }
+    }
+
+    private void handleZbmath(String pid, String display, HDLServletRequest hdl) {
+        // Handle zbMATH URLs
+        String redirectUrl = null;
+        switch (display) {
+            case RESOLVING_MODE_LANDINGPAGE:
+                redirectUrl = "https://zbmath.org/authors/" + pid;
+                break;
+            case RESOLVING_MODE_METADATA:
+                redirectUrl = "https://api.zbmath.org/v1/author/" + pid;
+                break;
+            default:
+                // Handle default case or throw an exception for an unknown display value
                 break;
         }
         if (redirectUrl != null) {
