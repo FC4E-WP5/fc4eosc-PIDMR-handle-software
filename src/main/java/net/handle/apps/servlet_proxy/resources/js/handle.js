@@ -22,10 +22,11 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=false;
         }
-        if (identifier.includes("doi:10.") && !identifier.includes("zenodo")) {
+        if (identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=false;
         }
+
         if (identifier.match(/^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/)) {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=true;
@@ -34,15 +35,25 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=true;
         }
-        document.getElementById("metadata").disabled=true;
-        document.getElementById("resource").disabled=true;
+        if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
+            document.getElementById("content-negotiation-title").style.display = "block";
+            document.getElementById("content-negotiation-bibtex").style.display = "block";
+            document.getElementById("content-negotiation-citation").style.display = "block";
+            document.getElementById("content-negotiation-turtle").style.display = "block";
+            document.getElementById("content-negotiation-rdf").style.display = "block";
+        } else {
+            document.getElementById("content-negotiation-title").style.display = "none";
+            document.getElementById("content-negotiation-bibtex").style.display = "none";
+            document.getElementById("content-negotiation-citation").style.display = "none";
+            document.getElementById("content-negotiation-turtle").style.display = "none";
+            document.getElementById("content-negotiation-rdf").style.display = "none";
+        }
     }
 
     if (prefix.length == 5) {
         document.getElementById("metadata").disabled=false;
         document.getElementById("resource").disabled=true;
     }
-
     if (!!identifier) {
         document.getElementById("identifier").value = identifier;
         let displayMode = document.getElementById("landingpage");
