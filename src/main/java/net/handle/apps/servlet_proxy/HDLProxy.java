@@ -147,6 +147,10 @@ public class HDLProxy extends HttpServlet {
     private final String CN_CITATION = "citation";
     private String pidType = null;
     private String recognizedPid = null;
+    private final String CROSSREF_METADATA_ENDPOINT = "https://api.crossref.org/works/";
+    private final String DATACITE_METADATA_ENDPOINT = "https://api.datacite.org/dois/";
+
+    private final String DOI_LANDINGPAGE_ENDPOINT = "https://dx.doi.org/";
 
     class TypeHandlerEntry {
         TypeHandler handler;
@@ -683,9 +687,7 @@ public class HDLProxy extends HttpServlet {
                 }
             }
         } else {
-            resp.setCharacterEncoding("UTF-8");
-            resp.setContentType("application/json");
-            resp.getWriter().println("{\"error\": \"pid type can not be determind.\"}");
+            noPidType(resp);
         }
     }
 
@@ -727,13 +729,7 @@ public class HDLProxy extends HttpServlet {
                 break;
             default:
                 try {
-                    resp.setCharacterEncoding("UTF-8");
-                    resp.setContentType("text/html");
-                    resp.getWriter().println("pid type not defined.");
-                    resp.getWriter().println("<br>");
-                    resp.getWriter().println("pid:" + pid);
-                    resp.getWriter().println("<br>");
-                    resp.getWriter().println("pid type:" + pidType);
+                    noPidType(resp);
                     return;
                 } catch (IOException e) {
                     // Handle the exception here, e.g., log an error message or take corrective action.
@@ -742,8 +738,14 @@ public class HDLProxy extends HttpServlet {
         }
     }
 
+    private void noPidType(HttpServletResponse resp) throws IOException {
+        resp.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json");
+        resp.getWriter().println("{\"error\": \"pid type can not be determind.\"}");
+    }
+
     private String checkPidType(String pid) throws IOException {
-        // This assumes that the handle proxy server redides in /opt/hsj directory
+        // This assumes that the handle proxy server redides in /home/providers directory
         String providersFilePath = "/home/providers/providers.json";
         String providersBackupFilePath = "/home/providers/providers_backup.json";
         File providersFile = new File(providersFilePath);
@@ -912,11 +914,12 @@ public class HDLProxy extends HttpServlet {
         }
     }
 
-    private void handleDoi(String pid, String display, HDLServletRequest hdl, HttpServletResponse resp) throws IOException {
+    private void handleDoi(String pid, String display, HDLServletRequest hdl, HttpServletResponse resp) throws HandleException, IOException {
         String redirectUrl = null;
         JsonArray resourceRedirectUrl = null;
         JsonElement dataciteResourceRedirectUrl = null;
         String cnType = null;
+        String doiProvider = null;
         if (pid.contains("doi:")) {
             pid = pid.split("doi:")[1];
         }
@@ -926,40 +929,39 @@ public class HDLProxy extends HttpServlet {
         }
         switch (display) {
             case RESOLVING_MODE_LANDINGPAGE:
-                redirectUrl = "https://dx.doi.org/" + pid;
+                redirectUrl = DOI_LANDINGPAGE_ENDPOINT + pid;
                 break;
             case RESOLVING_MODE_METADATA:
-                String crossrefMetadataUrl = "https://api.crossref.org/works/" + pid;
-                try {
-                    URL apiUrl = new URL(crossrefMetadataUrl);
-                    HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
-                    connection.setRequestMethod("GET");
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == 200) {
-                        redirectUrl = crossrefMetadataUrl;
-                    } else {
-                        String dataciteMetadataUrl = "https://api.datacite.org/dois/" + pid;
-                        apiUrl = new URL(dataciteMetadataUrl);
-                        connection = (HttpURLConnection) apiUrl.openConnection();
-                        connection.setRequestMethod("GET");
-                        responseCode = connection.getResponseCode();
-                        if (responseCode == 200) {
-                            redirectUrl = dataciteMetadataUrl;
-                        }
-                    }
-                } catch (Exception e) {
-                    // Handle the exception here, e.g., log an error message or take corrective action.
+                doiProvider = getDoiProvider(pid);
+                if (doiProvider == null) {
+                    noDoiProvider(resp);
+                    return;
+                }
+                switch (doiProvider) {
+                    case "crossref":
+                        redirectUrl = CROSSREF_METADATA_ENDPOINT + pid;
+                        break;
+                    case "datacite":
+                        redirectUrl = DATACITE_METADATA_ENDPOINT + pid;
+                        break;
                 }
                 break;
             case RESOLVING_MODE_RESOURCE:
-                crossrefMetadataUrl = "https://api.crossref.org/works/" + pid;
-                resourceRedirectUrl = fetchCrossrefDoiResourceUrl(crossrefMetadataUrl);
-                if (resourceRedirectUrl == null) {
-                    String dataciteMetadataUrl = "https://api.datacite.org/dois/" + pid;
-                    dataciteResourceRedirectUrl = fetchDataciteDoiResourceUrl(dataciteMetadataUrl);
-                    if (dataciteResourceRedirectUrl != null) {
-                        redirectUrl = dataciteResourceRedirectUrl.toString().replace("\"", "");
-                    }
+                doiProvider = getDoiProvider(pid);
+                if (doiProvider == null) {
+                    noDoiProvider(resp);
+                    return;
+                }
+                switch (doiProvider) {
+                    case "crossref":
+                        resourceRedirectUrl = fetchCrossrefDoiResourceUrl(CROSSREF_METADATA_ENDPOINT + pid);
+                        break;
+                    case "datacite":
+                        dataciteResourceRedirectUrl = fetchDataciteDoiResourceUrl(DATACITE_METADATA_ENDPOINT + pid);
+                        if (dataciteResourceRedirectUrl != null) {
+                            redirectUrl = dataciteResourceRedirectUrl.toString().replace("\"", "");
+                        }
+                        break;
                 }
                 break;
             case RESOLVING_MODE_CN:
@@ -1016,9 +1018,42 @@ public class HDLProxy extends HttpServlet {
                     // Handle the exception here, e.g., log an error message or take corrective action.
                 }
             }
+        } else {
+            hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, DOI_LANDINGPAGE_ENDPOINT + pid);
         }
     }
-    
+
+    private void noDoiProvider(HttpServletResponse resp) throws IOException {
+        resp.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json");
+        resp.getWriter().println("{\"error\": \"DOI provider can not be determind.\"}");
+    }
+
+    private String getDoiProvider(String pid) {
+        String doiProvider = null;
+        if (pid.contains("/")) {
+            String doiProviderId = pid.split("/")[0];
+            HandleValue[] vals;
+            try {
+                vals = resolveHandle(doiProviderId);
+            } catch (HandleException e) {
+                return doiProvider;
+            }
+            String dataStr;
+            for (HandleValue val : vals) {
+                String typeAsStr = val.getTypeAsString();
+                if (typeAsStr.equals("HS_SERV")) {
+                    dataStr = val.getDataAsString();
+                    if (dataStr != null && dataStr.contains("/")) {
+                        doiProvider = dataStr.toLowerCase().split("/")[1];
+                        break;
+                    }
+                }
+            }
+        }
+        return doiProvider;
+    }
+
     private void handleOrcid(String pid, String display, HDLServletRequest hdl) {
         // Handle URN FI URLs
         String redirectUrl = null;
