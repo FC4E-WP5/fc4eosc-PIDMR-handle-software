@@ -20,4 +20,4 @@ build:
 deploy:
   stage: deploy
   script:
-    - scp /builds/epic/pidmr-handle-software/build/distributions/handle-9.3.1/lib/handle-9.3.1.jar cloud@141.5.105.149:/home/cloud
+    - scp build/distributions/handle-9.3.1/lib/handle-9.3.1.jar cloud@141.5.105.149:/home/cloud
