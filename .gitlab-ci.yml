@@ -1,0 +1,13 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - ./gradlew build  # oder der entsprechende Build-Befehl für Ihr Projekt
+
+deploy:
+  stage: deploy
+  script:
+    - scp build/distributions/handle-9.3.1/lib/handle-9.3.1.jar cloud@141.5.105.149:/home/cloud
