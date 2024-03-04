@@ -4,6 +4,14 @@ stages:
   - build
   - deploy
 
+default:
+  before_script:
+    - 'which ssh-agent || ( apk add --update openssh-client )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+
 build:
   stage: build
   script:
@@ -12,5 +20,4 @@ build:
 deploy:
   stage: deploy
   script:
-    - ssh -oStrictHostKeyChecking=no
     - scp build/distributions/handle-9.3.1/lib/handle-9.3.1.jar cloud@141.5.105.149:/home/cloud
