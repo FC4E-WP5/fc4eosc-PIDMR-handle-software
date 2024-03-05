@@ -1,7 +1,6 @@
 image: maven:3-openjdk-8
 
 stages:
-#  - build
   - deploy
 
 default:
@@ -11,11 +10,6 @@ default:
     - eval $(ssh-agent -s)
     - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-
-#build:
-#  stage: build
-#  script:
-#    - ./gradlew build  # oder der entsprechende Build-Befehl für Ihr Projekt
 
 deploy:
   stage: deploy
