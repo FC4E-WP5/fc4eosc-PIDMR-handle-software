@@ -24,3 +24,4 @@ deploy:
         bash
         /opt/hsj/handle-9.3.1/bin/hdl-server /hs/svr_1
         EOT
+    - exit 0
