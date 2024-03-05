@@ -25,6 +25,5 @@ deploy:
         sudo su
         bash
         /opt/hsj/handle-9.3.1/bin/hdl-server /hs/svr_1
-        exit
         EOT
     - exit 0
