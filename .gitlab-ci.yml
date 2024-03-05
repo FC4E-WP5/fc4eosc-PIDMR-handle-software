@@ -21,21 +21,12 @@ deploy:
   stage: deploy
   script:
     - ./gradlew build
-    - scp build/libs/handle-9.3.1.jar cloud@141.5.105.149:/home/cloud
-    #- ssh cloud@141.5.105.149 'sudo rm /hs/svr_1/delete_this_to_stop_server'
+    - scp build/libs/handle-9.3.1.jar $SSH_LOGIN:/home/cloud
     - |
-        ssh cloud@141.5.105.149 /bin/bash -s << EOT
+        ssh $SSH_LOGIN /bin/bash -s << EOT
         sudo rm /hs/svr_1/delete_this_to_stop_server
         sudo mv handle-9.3.1.jar /opt/hsj/handle-9.3.1/lib/
         sudo su
         bash
         /opt/hsj/handle-9.3.1/bin/hdl-server /hs/svr_1
         EOT
-    #- sudo mv handle-9.3.1.jar /opt/hsj/handle-9.3.
-    #- apt-get update
-    #- apt-get install sudo
-    #- sudo rm /hs/svr_1/delete_this_to_stop_server
-    #- sudo mv handle-9.3.1.jar /opt/hsj/handle-9.3.1/lib/
-    #- sudo su
-    #- bash
-    #- /opt/hsj/handle-9.3.1/bin/hdl-server /hs/svr_1
