@@ -18,7 +18,9 @@ deploy:
     - scp build/libs/handle-9.3.1.jar $SSH_LOGIN:/home/cloud
     - |
         ssh $SSH_LOGIN /bin/bash -s << EOT
+        if [ -f /hs/svr_1/delete_this_to_stop_server ]; then
         sudo rm /hs/svr_1/delete_this_to_stop_server
+        fi
         sudo mv handle-9.3.1.jar /opt/hsj/handle-9.3.1/lib/
         sudo su
         bash
