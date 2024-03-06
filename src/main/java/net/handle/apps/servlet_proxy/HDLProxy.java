@@ -730,6 +730,9 @@ public class HDLProxy extends HttpServlet {
             case "swMATH":
                 handleSwmath(pid, display, hdl);
                 break;
+            case "ROR":
+                handleRor(pid, display, hdl);
+                break;
             default:
                 try {
                     noPidType(resp);
@@ -1106,6 +1109,25 @@ public class HDLProxy extends HttpServlet {
                 break;
             case RESOLVING_MODE_METADATA:
                 redirectUrl = "https://api.zbmath.org/v1/software/" + pid;
+                break;
+            default:
+                // Handle default case or throw an exception for an unknown display value
+                break;
+        }
+        if (redirectUrl != null) {
+            hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
+        }
+    }
+
+    private void handleRor(String pid, String display, HDLServletRequest hdl) {
+        // Handle swMATH URLs
+        String redirectUrl = null;
+        switch (display) {
+            case RESOLVING_MODE_LANDINGPAGE:
+                redirectUrl = "https://ror.org/" + pid;
+                break;
+            case RESOLVING_MODE_METADATA:
+                redirectUrl = "https://api.ror.org/v1/organizations/" + pid;
                 break;
             default:
                 // Handle default case or throw an exception for an unknown display value
