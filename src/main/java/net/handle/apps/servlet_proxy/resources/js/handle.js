@@ -6,7 +6,7 @@ function processHandleOnPaste() {
     if (identifier.includes("/")) {
         var prefix = identifier.split("/")[0];
     }
-    if (!identifier.includes("21.") && prefix.length != 5) {
+    if (!!identifier) {
         if (!identifier.includes("21.T11973/MR@")) {
             identifier = identifier.trim()
         }
@@ -22,16 +22,23 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=false;
         }
+        if (identifier.includes("21.")) {
+            document.getElementById("metadata").disabled=false;
+            document.getElementById("resource").disabled=true;
+        }
         if (identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=false;
         }
-
         if (identifier.match(/^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/)) {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=true;
         }
         if (identifier.match(/^([a-z][a-z\-]*(?:\.[a-z][a-z\-]*)?(?:\.[0-9]*)?)$/)) {
+            document.getElementById("metadata").disabled=false;
+            document.getElementById("resource").disabled=true;
+        }
+        if (identifier.match(/^([0-9]{1,5})$/)) {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=true;
         }
@@ -115,6 +122,10 @@ for (var i=0; i < templateHandleIds.length; i++) {
                 document.getElementById("resource").disabled=true;
             }
             if (identifier.match(/^([a-z][a-z\-]*(?:\.[a-z][a-z\-]*)?(?:\.[0-9]*)?)$/)) {
+                document.getElementById("metadata").disabled=false;
+                document.getElementById("resource").disabled=true;
+            }
+            if (identifier.match(/^([0-9]{1,5})$/)) {
                 document.getElementById("metadata").disabled=false;
                 document.getElementById("resource").disabled=true;
             }
