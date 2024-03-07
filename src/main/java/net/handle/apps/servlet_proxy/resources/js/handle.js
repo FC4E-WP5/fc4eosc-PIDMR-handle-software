@@ -46,6 +46,10 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=true;
         }
+        if (identifier.match(/^([\d.]+)$/)) {
+            document.getElementById("metadata").disabled=false;
+            document.getElementById("resource").disabled=true;
+        }
         if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
             document.getElementById("content-negotiation-title").style.display = "block";
             document.getElementById("content-negotiation-bibtex").style.display = "block";
@@ -134,6 +138,10 @@ for (var i=0; i < templateHandleIds.length; i++) {
                 document.getElementById("resource").disabled=true;
             }
             if (identifier.match(/^(0[0-9a-zA-Z]{6}[0-9]{2})$/)) {
+                document.getElementById("metadata").disabled=false;
+                document.getElementById("resource").disabled=true;
+            }
+            if (identifier.match(/^([\d.]+)$/)) {
                 document.getElementById("metadata").disabled=false;
                 document.getElementById("resource").disabled=true;
             }
