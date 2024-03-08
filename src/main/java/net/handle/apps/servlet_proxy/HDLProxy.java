@@ -926,9 +926,10 @@ public class HDLProxy extends HttpServlet {
     private void handleDoi(String pid, String display, HDLServletRequest hdl, HttpServletResponse resp) throws HandleException, IOException {
         String redirectUrl = null;
         JsonArray resourceRedirectUrl = null;
-        JsonElement dataciteResourceRedirectUrl = null;
+        JsonElement dataciteResourceRedirectUrl;
         String cnType = null;
-        String doiProvider = null;
+        String doiProvider;
+        pid = checkForCanonicalDoiFormat(pid);
         if (pid.contains("doi:")) {
             pid = pid.split("doi:")[1];
         }
@@ -1030,6 +1031,16 @@ public class HDLProxy extends HttpServlet {
         } else {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, DOI_LANDINGPAGE_ENDPOINT + pid);
         }
+    }
+
+    private String checkForCanonicalDoiFormat(String pid) {
+        Pattern pattern = Pattern.compile("^((https?://)?doi.org/).+$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(pid);
+        boolean matchFound = matcher.find();
+        if (matchFound) {
+            pid = pid.split(matcher.group(1))[1];
+        }
+        return pid;
     }
 
     private void noDoiProvider(HttpServletResponse resp) throws IOException {
