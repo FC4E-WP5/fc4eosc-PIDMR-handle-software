@@ -736,6 +736,9 @@ public class HDLProxy extends HttpServlet {
             case "ROR":
                 handleRor(pid, display, hdl);
                 break;
+            case "ISLRN":
+                handleISLRN(pid, display, hdl);
+                break;
             default:
                 try {
                     noPidType(resp);
@@ -1161,6 +1164,22 @@ public class HDLProxy extends HttpServlet {
                 break;
             case RESOLVING_MODE_METADATA:
                 redirectUrl = "https://api.ror.org/v1/organizations/" + pid;
+                break;
+            default:
+                // Handle default case or throw an exception for an unknown display value
+                break;
+        }
+        if (redirectUrl != null) {
+            hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
+        }
+    }
+
+    private void handleISLRN(String pid, String display, HDLServletRequest hdl) {
+        // Handle ISLRN URLs
+        String redirectUrl = null;
+        switch (display) {
+            case RESOLVING_MODE_LANDINGPAGE:
+                redirectUrl = "https://www.islrn.org/resources/" + pid;
                 break;
             default:
                 // Handle default case or throw an exception for an unknown display value
