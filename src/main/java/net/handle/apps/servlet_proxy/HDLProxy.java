@@ -628,25 +628,26 @@ public class HDLProxy extends HttpServlet {
                 if (req.getQueryString().contains("&")) {
                     pid = req.getQueryString().split("&")[0];
                     display = req.getQueryString().split("&")[1];
-                    if (display == null) {
-                        display = RESOLVING_MODE_LANDINGPAGE;
-                    }
-                    if (pid != null) {
-                        pidType = checkPidType(pid);
-                        if (pidType != null) {
-                            if (!pidType.equals("21")) {
-                                try {
-                                    dispatchPidHandlingMode(pid, display, hdl, pidType, resp);
-                                } catch (HandleException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                return;
-                            }
-                        } else {
-                            resp.setCharacterEncoding("UTF-8");
-                            resp.setContentType("application/json");
-                            resp.getWriter().println("{\"error\": \"pid type can not be determind.\"}");
+                }
+                else {
+                    pid = req.getQueryString();
+                }
+                if (display == null) {
+                    display = RESOLVING_MODE_LANDINGPAGE;
+                }
+                if (pid != null) {
+                    pidType = checkPidType(pid);
+                    if (pidType != null) {
+                        try {
+                            dispatchPidHandlingMode(pid, display, hdl, pidType, resp);
+                        } catch (HandleException e) {
+                            throw new RuntimeException(e);
                         }
+                        return;
+                    } else {
+                        resp.setCharacterEncoding("UTF-8");
+                        resp.setContentType("application/json");
+                        resp.getWriter().println("{\"error\": \"pid type can not be determind.\"}");
                     }
                 }
             }
@@ -660,7 +661,7 @@ public class HDLProxy extends HttpServlet {
         HDLServletRequest hdl = new HDLServletRequest(this, req, resp, resolver);
         pidType = checkPidType(hdl.hdl);
         if (pidType != null) {
-            if (!pidType.equals("21")) {
+            if (!pidType.equals("21") && !pidType.equals("epic old")) {
                 display = hdl.params.getParameter("display");
                 if (display == null) {
                     display = RESOLVING_MODE_LANDINGPAGE;
@@ -685,6 +686,10 @@ public class HDLProxy extends HttpServlet {
 
     private void dispatchPidHandlingMode(String pid, String display, HDLServletRequest hdl, String pidType, HttpServletResponse resp) throws IOException, ServletException, HandleException {
         switch (pidType) {
+            case "21":
+            case "epic_old":
+                handle21(pid, display, hdl);
+                break;
             case "arXiv":
                 handleArxiv(pid, display, hdl);
                 break;
@@ -826,7 +831,21 @@ public class HDLProxy extends HttpServlet {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
         }
     }
-
+    private void handle21(String pid, String display, HDLServletRequest hdl) {
+        // Handle 21 URLs
+        String redirectUrl = null;
+        switch (display) {
+            case RESOLVING_MODE_LANDINGPAGE:
+                redirectUrl = "https://hdl.handle.net/" + pid;
+                break;
+            case RESOLVING_MODE_METADATA:
+                redirectUrl = "https://hdl.handle.net/" + pid + "?noredirect";
+                break;
+        }
+        if (redirectUrl != null) {
+            hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
+        }
+    }
     private void handleArxiv(String pid, String display, HDLServletRequest hdl) {
         // Handle Arxiv URLs
         String redirectUrl = null;
