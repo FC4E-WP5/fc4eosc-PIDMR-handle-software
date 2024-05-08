@@ -54,6 +54,10 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=true;
         }
+        if (identifier.match(/^\d{5,5}\/.+$/)) {
+            document.getElementById("metadata").disabled=false;
+            document.getElementById("resource").disabled=true;
+        }
         if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
             document.getElementById("content-negotiation-title").style.display = "block";
             document.getElementById("content-negotiation-bibtex").style.display = "block";
@@ -153,6 +157,10 @@ for (var i=0; i < templateHandleIds.length; i++) {
                 document.getElementById("metadata").disabled=true;
                 document.getElementById("resource").disabled=true;
             }
+            if (identifier.match(/^\d{5,5}\/.+$/)) {
+                document.getElementById("metadata").disabled=false;
+                document.getElementById("resource").disabled=true;
+            }
             if (identifier.includes("doi:10.") && !identifier.includes("zenodo")) {
                 document.getElementById("metadata").disabled=false;
                 document.getElementById("resource").disabled=false;
@@ -190,7 +198,7 @@ for (var i = 0; i < displayElements.length; i++) {
         let display = this.value;
         var identifier = document.querySelector("input[type='text'][name='hdl']").value;
         if (!!identifier) {
-            if (identifier.includes("21.")) {
+            if (identifier.includes("21.") || identifier.match(/^\d{5,5}\/.+$/)) {
                 document.getElementById('identifier').value = identifier;
                 document.getElementById('display').value = "";
                 if (display == "metadata") {
