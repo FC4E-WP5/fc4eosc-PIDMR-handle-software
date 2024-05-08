@@ -661,7 +661,7 @@ public class HDLProxy extends HttpServlet {
         HDLServletRequest hdl = new HDLServletRequest(this, req, resp, resolver);
         pidType = checkPidType(hdl.hdl);
         if (pidType != null) {
-            if (!pidType.equals("21") && !pidType.equals("epic old")) {
+            if (!pidType.equals("21") && !pidType.equals("epic_old")) {
                 display = hdl.params.getParameter("display");
                 if (display == null) {
                     display = RESOLVING_MODE_LANDINGPAGE;
