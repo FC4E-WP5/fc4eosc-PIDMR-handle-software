@@ -19,13 +19,12 @@ git clone https://gitlab-ce.gwdg.de/epic/pidmr-handle-software.git
 
 ## Code extension
 
-Entrance point for routing is defined in [web.xml](https://gitlab-ce.gwdg.de/epic/pidmr-handle-software/-/blob/main/src/main/java/net/handle/apps/servlet_proxy/resources/WEB-INF/web.xml?ref_type=heads) file as follow:
+Entrance point for routing is defined in [Main.java](https://gitlab-ce.gwdg.de/epic/pidmr-handle-software/-/blob/main/src/main/java/net/handle/server/Main.java?ref_type=heads#L398) file as follow:
 
 ```
-<servlet-mapping>
-    <servlet-name>HDLProxy</servlet-name>
-    <url-pattern>/*</url-pattern>
-</servlet-mapping>
+ ServletMapping mapping = new ServletMapping();
+ mapping.setServletName(HDLProxy.class.getName());
+ mapping.setPathSpec("/*");
 ```
 
 and HDLProxy servlet takes care of processing the requests, including GET and POST requests, which could be found at:
