@@ -823,9 +823,6 @@ public class HDLProxy extends HttpServlet {
             case RESOLVING_MODE_RESOURCE:
                 redirectUrl = "https://archive.softwareheritage.org/browse/content/sha1_git:" + pid + "/raw/";
                 break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                break;
         }
         if (redirectUrl != null) {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
@@ -859,9 +856,6 @@ public class HDLProxy extends HttpServlet {
                 break;
             case RESOLVING_MODE_RESOURCE:
                 redirectUrl = "https://arxiv.org/pdf/" + pid + ".pdf";
-                break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
                 break;
         }
         if (redirectUrl != null) {
@@ -907,9 +901,6 @@ public class HDLProxy extends HttpServlet {
                     // Handle the exception here, e.g., log an error message or take corrective action.
                 }
                 break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                break;
         }
         if (redirectUrl != null) {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
@@ -922,14 +913,6 @@ public class HDLProxy extends HttpServlet {
         switch (display) {
             case RESOLVING_MODE_LANDINGPAGE:
                 redirectUrl = "https://urn.fi/" + pid;
-                break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                try {
-                    returnHelpPage(hdl, pid, display);
-                } catch (IOException e) {
-                    // Handle the exception here, e.g., log an error message or take corrective action.
-                }
                 break;
         }
         if (redirectUrl != null) {
@@ -1005,14 +988,6 @@ public class HDLProxy extends HttpServlet {
                     } catch (Exception e) {
                         // Handle the exception here, e.g., log an error message or take corrective action.
                     }
-                }
-                break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                try {
-                    returnHelpPage(hdl, pid, display);
-                } catch (IOException e) {
-                    // Handle the exception here, e.g., log an error message or take corrective action.
                 }
                 break;
         }
@@ -1095,14 +1070,6 @@ public class HDLProxy extends HttpServlet {
             case RESOLVING_MODE_LANDINGPAGE:
                 redirectUrl = "https://orcid.org/" + pid;
                 break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                try {
-                    returnHelpPage(hdl, pid, display);
-                } catch (IOException e) {
-                    // Handle the exception here, e.g., log an error message or take corrective action.
-                }
-                break;
         }
         if (redirectUrl != null) {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
@@ -1118,9 +1085,6 @@ public class HDLProxy extends HttpServlet {
                 break;
             case RESOLVING_MODE_METADATA:
                 redirectUrl = "https://api.zbmath.org/v1/author/" + pid;
-                break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
                 break;
         }
         if (redirectUrl != null) {
@@ -1138,9 +1102,6 @@ public class HDLProxy extends HttpServlet {
             case RESOLVING_MODE_METADATA:
                 redirectUrl = "https://api.zbmath.org/v1/software/" + pid;
                 break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                break;
         }
         if (redirectUrl != null) {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
@@ -1156,9 +1117,6 @@ public class HDLProxy extends HttpServlet {
                 break;
             case RESOLVING_MODE_METADATA:
                 redirectUrl = "https://api.zbmath.org/v1/document/" + pid;
-                break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
                 break;
         }
         if (redirectUrl != null) {
@@ -1176,9 +1134,6 @@ public class HDLProxy extends HttpServlet {
             case RESOLVING_MODE_METADATA:
                 redirectUrl = "https://api.ror.org/v1/organizations/" + pid;
                 break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                break;
         }
         if (redirectUrl != null) {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
@@ -1191,9 +1146,6 @@ public class HDLProxy extends HttpServlet {
         switch (display) {
             case RESOLVING_MODE_LANDINGPAGE:
                 redirectUrl = "https://www.islrn.org/resources/" + pid;
-                break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
                 break;
         }
         if (redirectUrl != null) {
@@ -1291,14 +1243,6 @@ public class HDLProxy extends HttpServlet {
             case RESOLVING_MODE_METADATA:
                 redirectUrl = "https://n2t.net/" + pid + "/?";
                 break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                try {
-                    returnHelpPage(hdl, pid, display);
-                } catch (IOException e) {
-                    // Handle the exception here, e.g., log an error message or take corrective action.
-                }
-                break;
         }
         if (redirectUrl != null) {
             hdl.sendHTTPRedirect(ResponseType.MOVED_PERMANENTLY, redirectUrl);
@@ -1367,14 +1311,6 @@ public class HDLProxy extends HttpServlet {
                             }
                         }
                     }
-                }
-                break;
-            default:
-                // Handle default case or throw an exception for an unknown display value
-                try {
-                    returnHelpPage(hdl, pid, display);
-                } catch (IOException e) {
-                    // Handle the exception here, e.g., log an error message or take corrective action.
                 }
                 break;
         }
