@@ -13,6 +13,7 @@ import net.cnri.util.StreamTable;
 import net.cnri.util.StreamVector;
 import net.handle.apps.servlet_proxy.DefaultServlet;
 import net.handle.apps.servlet_proxy.HDLProxy;
+
 import net.handle.apps.servlet_proxy.ResponseHeaderFilter;
 import net.handle.hdllib.*;
 import net.handle.server.dns.DnsConfiguration;
@@ -51,6 +52,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
+
+import eu.faircore4eosc.pidmr.PIDMRHDLProxy;
 
 /*******************************************************************************
  *
@@ -388,15 +391,26 @@ public class Main {
 
         context.setBaseResource(Resource.newResource(HDLProxy.class.getResource("resources/")));
         ServletHolder hdlProxy = new ServletHolder(HDLProxy.class.getName(), HDLProxy.class);
+        ServletHolder pidmrhdlProxy = new ServletHolder(PIDMRHDLProxy.class.getName(), PIDMRHDLProxy.class);
+
         hdlProxy.setInitOrder(1);
         context.getServletHandler().addServlet(hdlProxy);
+        context.getServletHandler().addServlet(pidmrhdlProxy);
+
         context.getServletHandler().addServlet(new ServletHolder(DefaultServlet.class.getName(), DefaultServlet.class));
         context.getServletHandler().addServlet(new ServletHolder(NativeServlet.class.getName(), NativeServlet.class));
         if (enableProxy) {
             ServletMapping mapping = new ServletMapping();
             mapping.setServletName(HDLProxy.class.getName());
-            mapping.setPathSpec("/*");
+            mapping.setPathSpec("/oldRoute");
             context.getServletHandler().addServletMapping(mapping);
+
+            ServletMapping mymapping = new ServletMapping();
+            mymapping.setServletName(PIDMRHDLProxy.class.getName());
+            mymapping.setPathSpec("/*");
+            context.getServletHandler().addServletMapping(mymapping);
+
+
             mapping = new ServletMapping();
             mapping.setServletName(DefaultServlet.class.getName());
             mapping.setPathSpec("/static/*");
