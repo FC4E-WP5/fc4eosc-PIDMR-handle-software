@@ -18,7 +18,7 @@ build-job:
     - echo "Creating directory inside /opt"
     - mkdir -p /opt/hsj/handle-9.3.1
     - ls -la /opt/hsj/handle-9.3.1
-    - cd /opt/hsj/handle-9.3.1 && wget https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download .
+    - cd /opt/hsj/handle-9.3.1 && wget https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download
 
 deploy:
   stage: deploy
