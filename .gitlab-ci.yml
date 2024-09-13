@@ -10,7 +10,7 @@ default:
     - eval $(ssh-agent -s)
     - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir /opt/hsj/handle-9.3.1
+    - mkdir -p /opt/hsj/handle-9.3.1
     - cd /opt/hsj/handle-9.3.1 && wget https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download
 
 deploy:
