@@ -1,7 +1,6 @@
 image: maven:3-openjdk-8
 
 stages:
-  - build
   - deploy
 
 default:
@@ -12,17 +11,12 @@ default:
     - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
 
-build-job:
-  stage: build
-  script:
-    - echo "Creating directory inside /opt"
-    - mkdir -p /opt/hsj/handle-9.3.1
-    - ls -la /opt/hsj/handle-9.3.1
-    - cd /opt/hsj/handle-9.3.1 && wget https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download
-
-deploy:
+deploy-job:
   stage: deploy
   script:
+    - mkdir -p /opt/hsj/handle-9.3.1
+    - cd /opt/hsj/handle-9.3.1 && wget https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download
     - ./gradlew build
     - scp build/libs/handle-9.3.1.jar $SSH_LOGIN:/home/cloud
     - ssh $SSH_LOGIN "$PROXY_RESTART_SCRIPT"
+
