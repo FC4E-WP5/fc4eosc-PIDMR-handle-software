@@ -14,6 +14,9 @@ defaultTasks 'clean', 'serverDistTar'
 repositories {
     maven { url 'https://handle.net/maven' } // for handle-admin-webapp
     maven { url 'https://download.oracle.com/maven' }  // for JE
+    flatDir {
+        dirs("/opt/hsj/handle-9.3.1/lib")
+    }
 }
 
 sourceSets {
@@ -30,6 +33,7 @@ sourceSets {
 // Gradle excludes *.java files in resource directories by default
 sourceSets.main.resources {
     srcDirs = ['src/main/java']
+    srcDir 'libs/src'
 }
 sourceSets.test.resources {
     srcDirs = ['src/test/java']
@@ -49,6 +53,8 @@ configurations {
 }
 
 dependencies {
+    compile name: 'pidmrhdlproxy-0.1'
+
     compile 'com.google.code.gson:gson:2.10'
     compile 'net.cnri:cnriutil:2.0'
     compile 'commons-codec:commons-codec:1.13'
