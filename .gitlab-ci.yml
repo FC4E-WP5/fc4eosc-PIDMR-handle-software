@@ -15,7 +15,7 @@ deploy-job:
   stage: deploy
   script:
     - mkdir -p /opt/hsj/handle-9.3.1
-    - cd /opt/hsj/handle-9.3.1 && wget https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download
+    - wget https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download -P /opt/hsj/handle-9.3.1
     - ./gradlew build
     - scp build/libs/handle-9.3.1.jar $SSH_LOGIN:/home/cloud
     - ssh $SSH_LOGIN "$PROXY_RESTART_SCRIPT"
