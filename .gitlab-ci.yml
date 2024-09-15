@@ -14,7 +14,7 @@ default:
 deploy-job:
   stage: deploy
   before_script:
-    - curl --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download -P /opt/hsj/handle-9.3.1/lib/pidmrhdlproxy-0.1.jar
+    - 'curl --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab-ce.gwdg.de/epic/pidmr-handle-proxy-lib/-/package_files/3925/download" -P /opt/hsj/handle-9.3.1/lib/pidmrhdlproxy-0.1.jar'
   script:
     - ./gradlew build
     - scp build/libs/handle-9.3.1.jar $SSH_LOGIN:/home/cloud
