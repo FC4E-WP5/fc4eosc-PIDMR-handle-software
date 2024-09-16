@@ -10,12 +10,11 @@ default:
     - eval $(ssh-agent -s)
     - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-
-deploy-job:
-  stage: deploy
-  before_script:
     - mkdir -p /opt/hsj/handle-9.3.1/lib/
     - 'curl --header "Private-Token: ${PIDMR_LIB_ACCESS_TOKEN}" "https://gitlab-ce.gwdg.de/api/v4/projects/24967/packages/maven/eu/faircore4eosc/lib/0.0.1-SNAPSHOT/pidmrhdlproxy-0.1.jar" >> /opt/hsj/handle-9.3.1/lib/pidmrhdlproxy-0.1.jar'
+
+deploy:
+  stage: deploy
   script:
     - ./gradlew build
     - scp build/libs/handle-9.3.1.jar $SSH_LOGIN:/home/cloud
