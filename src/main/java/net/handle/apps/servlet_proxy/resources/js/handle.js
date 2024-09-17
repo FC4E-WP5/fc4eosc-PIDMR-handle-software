@@ -14,6 +14,10 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=true;
         }
+        if (identifier.includes("urn:nbn:nl")) {
+            document.getElementById("metadata").disabled=true;
+            document.getElementById("resource").disabled=true;
+        }
         if (identifier.includes("ark:")) {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=true;
@@ -119,6 +123,10 @@ for (var i=0; i < templateHandleIds.length; i++) {
                 document.getElementById("resource").disabled=false;
             }
             if (identifier.includes("urn:nbn:fi")) {
+                document.getElementById("metadata").disabled=true;
+                document.getElementById("resource").disabled=true;
+            }
+            if (identifier.includes("urn:nbn:nl")) {
                 document.getElementById("metadata").disabled=true;
                 document.getElementById("resource").disabled=true;
             }
