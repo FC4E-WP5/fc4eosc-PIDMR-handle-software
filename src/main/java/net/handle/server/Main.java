@@ -390,27 +390,17 @@ public class Main {
         context.setContextPath("/");
 
         context.setBaseResource(Resource.newResource(HDLProxy.class.getResource("resources/")));
-        ServletHolder hdlProxy = new ServletHolder(HDLProxy.class.getName(), HDLProxy.class);
         ServletHolder pidmrhdlProxy = new ServletHolder(PIDMRHDLProxy.class.getName(), PIDMRHDLProxy.class);
-
-        hdlProxy.setInitOrder(1);
-        context.getServletHandler().addServlet(hdlProxy);
+        pidmrhdlProxy.setInitOrder(1);
         context.getServletHandler().addServlet(pidmrhdlProxy);
 
         context.getServletHandler().addServlet(new ServletHolder(DefaultServlet.class.getName(), DefaultServlet.class));
         context.getServletHandler().addServlet(new ServletHolder(NativeServlet.class.getName(), NativeServlet.class));
         if (enableProxy) {
             ServletMapping mapping = new ServletMapping();
-            mapping.setServletName(HDLProxy.class.getName());
-            mapping.setPathSpec("/oldRoute");
+            mapping.setServletName(PIDMRHDLProxy.class.getName());
+            mapping.setPathSpec("/*");
             context.getServletHandler().addServletMapping(mapping);
-
-            ServletMapping mymapping = new ServletMapping();
-            mymapping.setServletName(PIDMRHDLProxy.class.getName());
-            mymapping.setPathSpec("/*");
-            context.getServletHandler().addServletMapping(mymapping);
-
-
             mapping = new ServletMapping();
             mapping.setServletName(DefaultServlet.class.getName());
             mapping.setPathSpec("/static/*");
