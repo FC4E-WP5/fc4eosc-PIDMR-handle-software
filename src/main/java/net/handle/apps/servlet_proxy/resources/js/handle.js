@@ -208,13 +208,7 @@ for (var i=0; i < templateHandleIds.length; i++) {
             }
 
             document.getElementById("identifier").value = identifier;
-
-            if (!identifier.includes("21.")) {
-                document.getElementById("identifier").value = identifier;
-                document.getElementById("display").value = "landingpage";
-            } else {
-                document.getElementById("identifier").value = identifier;
-            }
+            document.getElementById("display").value = "landingpage";
             document.getElementById("landingpage").checked = true;
             document.getElementById("noredirect").checked = false;
         }
@@ -227,18 +221,8 @@ for (var i = 0; i < displayElements.length; i++) {
         let display = this.value;
         var identifier = document.querySelector("input[type='text'][name='hdl']").value;
         if (!!identifier) {
-            if (identifier.includes("21.") || identifier.match(/^\d{5,5}\/.+$/)) {
-                document.getElementById('identifier').value = identifier;
-                document.getElementById('display').value = "";
-                if (display == "metadata") {
-                    document.getElementById('noredirect').checked = true;
-                } else {
-                    document.getElementById('noredirect').checked = false;
-                }
-            } else {
-                document.getElementById('identifier').value = identifier;
-                document.getElementById('display').value = display;
-            }
+            document.getElementById('identifier').value = identifier;
+            document.getElementById('display').value = display;
         }
     }
 }
