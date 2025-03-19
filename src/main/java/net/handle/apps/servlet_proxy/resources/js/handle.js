@@ -73,17 +73,15 @@ function processHandleOnPaste() {
             document.getElementById("resource").disabled=true;
         }
         if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
-            document.getElementById("content-negotiation-title").style.display = "block";
-            document.getElementById("content-negotiation-bibtex").style.display = "block";
-            document.getElementById("content-negotiation-citation").style.display = "block";
-            document.getElementById("content-negotiation-turtle").style.display = "block";
-            document.getElementById("content-negotiation-rdf").style.display = "block";
+            document.getElementById("bibtex").style.display = "block";
+            document.getElementById("citation").style.display = "block";
+            document.getElementById("turtle").style.display = "block";
+            document.getElementById("rdf").style.display = "block";
         } else {
-            document.getElementById("content-negotiation-title").style.display = "none";
-            document.getElementById("content-negotiation-bibtex").style.display = "none";
-            document.getElementById("content-negotiation-citation").style.display = "none";
-            document.getElementById("content-negotiation-turtle").style.display = "none";
-            document.getElementById("content-negotiation-rdf").style.display = "none";
+            document.getElementById("bibtex").style.display = "none";
+            document.getElementById("citation").style.display = "none";
+            document.getElementById("turtle").style.display = "none";
+            document.getElementById("rdf").style.display = "none";
         }
     }
 
@@ -184,17 +182,15 @@ for (var i=0; i < templateHandleIds.length; i++) {
                 document.getElementById("resource").disabled=false;
             }
             if (identifier.includes("doi:10.")) {
-                document.getElementById("content-negotiation-title").style.display = "block";
-                document.getElementById("content-negotiation-bibtex").style.display = "block";
-                document.getElementById("content-negotiation-citation").style.display = "block";
-                document.getElementById("content-negotiation-turtle").style.display = "block";
-                document.getElementById("content-negotiation-rdf").style.display = "block";
+                document.getElementById("bibtex").style.display = "block";
+                document.getElementById("citation").style.display = "block";
+                document.getElementById("turtle").style.display = "block";
+                document.getElementById("rdf").style.display = "block";
             } else {
-                document.getElementById("content-negotiation-title").style.display = "none";
-                document.getElementById("content-negotiation-bibtex").style.display = "none";
-                document.getElementById("content-negotiation-citation").style.display = "none";
-                document.getElementById("content-negotiation-turtle").style.display = "none";
-                document.getElementById("content-negotiation-rdf").style.display = "none";
+                document.getElementById("bibtex").style.display = "none";
+                document.getElementById("citation").style.display = "none";
+                document.getElementById("turtle").style.display = "none";
+                document.getElementById("rdf").style.display = "none";
             }
             // ISNI RegEx
             if (identifier.match(/^(\d{15}[1-9X])$/)) {
