@@ -10,165 +10,106 @@
 <body>
 <div id="content">
     <div>
-        <a href="./"><img src="{{CONTEXT_PATH}}/static/images/logo.jpg" width="250" height="30" alt="faircore4eosc"></a>
-    <br>
-    <h2 align="center">Meta Resolver - MR</h2>
-    <div>
-        <p align="left">This is a minimal UI for debugging, the full feature UI is located at <a href="https://pidmr.devel.argo.grnet.gr">PIDMR</a></p>
-        <p align="left">The available PID providers and the possible queries can be found here: <a href="https://pidmr.devel.argo.grnet.gr/supported-pids">supported-pids</a></p>
-    </div>
-    <hr>
-    <form action="{{CONTEXT_PATH}}/" method=POST>
-        <div class="form-group input-group mt=2">
-            <div class="input-group-prepend">
-                <div class="d-inline"><span class="input-group-text"><input type="button" name="submit" id="clear" class="btn btn-secondary btn-lg" value="Clear"><input type="submit" name="clear" id="submit" class="btn btn-primary btn-lg m-1" value="Resolve"></span></div>
+        <header class="bg-white border-bottom shadow-sm mb-4 py-3">
+            <div class="container position-relative d-flex align-items-center justify-content-between">
+                <!-- Logo links -->
+                <div class="d-flex align-items-center">
+                    <a href="./">
+                        <img src="{{CONTEXT_PATH}}/static/images/logo.jpg" width="250" height="30" alt="faircore4eosc" class="img-fluid">
+                    </a>
+                </div>
+                <h4 class="m-0 position-absolute top-50 start-50 translate-middle fw-bold">
+                    <span style="color: #000000;">PID</span>
+                    <span style="color: #36B4D7;">Meta</span>
+                    <span style="color: #FFCD02;">Resolver</span>
+                    <span class="text-secondary">(PIDMR)</span>
+                </h4>
             </div>
-            <input type="text" id="identifier" name="hdl" class="form-control form-control-lg" placeholder="Enter identifier" required>
-            <input id="noredirect" class="noredirect" type=checkbox name="noredirect">
-            <input id="display" type=hidden name="display" value="">
+        </header>
+        <form action="{{CONTEXT_PATH}}/" method=POST>
+        <div class="container form-container">
+
+            <label for="how" class="form-label">How to use the PIDMR</label>
+            <small id="how" class="form-text bg-light border rounded-3 p-2 d-block my-2">
+                <p align="left">You can either select a PID/ID from the list or enter a valid PID/ID for resolving. Please notice that for DOI PID you could also ask for content including BibTeX, Citeproc JSON, RDF XML and RDF Turtle as per content negotiation. For this simply select an option under Resolving Mode.</p>
+            </small>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-box">
+                        <div class="mb-3">
+                            <label for="id" class="form-label">PID/ID Provider</label>
+                            <select id="id" class="form-select">
+                                <option selected>Please select...</option>
+                                <option class="id" name="id" value="ark:/67531/metapth346793">ARK</option>
+                                <option class="id" name="id" value="arXiv:2302.00338">arXiv</option>
+                                <option class="id" name="id" value="doi:10.3390/s18020479">Crossref DOI</option>
+                                <option class="id" name="id" value="https://doi.org/doi:10.3390/s18020479">Canonical Crossref DOI</option>
+                                <option class="id" name="id" value="doi:10.5524/100005">Datacite DOI</option>
+                                <option class="id" name="id" value="https://doi.org/doi:10.5524/100005">Canonical Datacite DOI</option>
+                                <option class="id" name="id" value="21.T11148/7317d72eb37156ced029">EPIC</option>
+                                <option class="id" name="id" value="11500/ATHENA-0000-0000-2401-6">OLD EPIC</option>
+                                <option class="id" name="id" value="978-3-14-028030-3">ISBN</option>
+                                <option class="id" name="id" value="261-537-224-628-2">ISLRN</option>
+                                <option class="id" name="id" value="000000012281955X">ISNI</option>
+                                <option class="id" name="id" value="0000-0001-9547-1582">ORCID</option>
+                                <option class="id" name="id" value="00cd95c65">ROR</option>
+                                <option class="id" name="id" value="swh:1:dir:a287b76446a4d6cd0c31392ba72979952c7c29dd">SWHID</option>
+                                <option class="id" name="id" value="urn:nbn:ch:rero-002-109646">CH-URN</option>
+                                <option class="id" name="id" value="urn:nbn:de:hbz:6-85659524771">DE-URN</option>
+                                <option class="id" name="id" value="urn:nbn:fi-fe2021080942632">FI-URN</option>
+                                <option class="id" name="id" value="urn:nbn:nl:ui:22-2066/16139">NL-URN</option>
+                                <option class="id" name="id" value="bingert.sven">zbMATH Author ID</option>
+                                <option class="id" name="id" value="32212">swMATH ID</option>
+                                <option class="id" name="id" value="7800006">zbMATH Publication ID</option>
+                                <option class="id" name="id" value="10.5281/zenodo.8056361">Zenodo (single-part resource)</option>
+                                <option class="id" name="id" value="10.5281/zenodo.8246990">zenodo (multi-part resource)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="res_mode" class="form-label">Resolving Mode</label>
+                            <select id="res_mode" class="form-select">
+                                <option selected>Please select...</option>
+                                <option id="landingpage" class="display" name="display" value="landingpage">Landing Page</option>
+                                <option id="metadata" class="display" name="display" value="metadata">Metadata</option>
+                                <option id="resource" class="display" name="display" value="resource">Resource</option>
+                                <option id="bibtex" class="display" name="display" value="cn_bibtex">BibTeX</option>
+                                <option id="citation" class="display" name="display" value="cn_rdf">Citeproc JSON</option>
+                                <option id="rdf" class="display" name="display" value="cn_citation">RDF XML</option>
+                                <option id="turtle" class="display" name="display" value="cn_turtle">RDF Turtle</option>                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-box h d-flex flex-column">
+                        <div class="mb-3 flex-grow-1 d-flex flex-column">
+                            <label for="identifier" class="form-label">PID/ID</label>
+                            <input type="text" id="identifier" name="hdl" class="form-control form-control-lg" placeholder="Enter identifier" required>
+                            <input id="noredirect" class="noredirect" type=checkbox name="noredirect">
+                            <input id="display" type=hidden name="display" value="">
+                        </div>
+                        <div class="d-flex gap-2 form-buttons">
+                            <input type="button" name="submit" id="clear" class="btn btn-secondary m-4 flex-fill" value="Clear">
+                            <input type="submit" name="clear" id="submit" class="btn btn-primary m-4 flex-fill" value="Resolve">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <label for="textBox" class="form-label">Additional Information</label>
+            <small id="textBox" class="form-text bg-light border rounded-3 p-2 d-block my-2">
+                <p align="left">This is a minimal UI. The full feature UI is located at <a href="https://pidmr.devel.argo.grnet.gr">PIDMR</a>. The available PID providers and the possible queries can be found here: <a href="https://pidmr.devel.argo.grnet.gr/supported-pids">supported-pids</a></p>
+            </small>
         </div>
     </form>
-    <div class="p-5">
-        <div>
+    </div>
+    <footer class="bg-light border-top mt-5 py-3">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <p class="mb-2 mb-md-0 text-muted small">&copy; 2025 GWDG / FAIRCORE4EOSC</p>
             <div>
-                <h6>Please select an identifier example for testing:</h6>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="ark:/67531/metapth346793"></div>
-                <div class="d-inline">ARK: ark:/67531/metapth346793</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="arXiv:2302.00338"></div>
-                <div class="d-inline">arXiv: arXiv:2302.00338</div>
-            </div>
-            <div>DOI</div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="doi:10.3390/s18020479"></div>
-                <div class="d-inline">Crossref DOI: doi:10.3390/s18020479</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="https://doi.org/doi:10.3390/s18020479"></div>
-                <div class="d-inline">Canonical Crossref DOI: https://doi.org/doi:10.3390/s18020479</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="doi:10.5524/100005"></div>
-                <div class="d-inline">Datacite DOI: doi:10.5524/100005</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="https://doi.org/doi:10.5524/100005"></div>
-                <div class="d-inline">Canonical Datacite DOI: https://doi.org/doi:10.5524/100005</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="21.T11148/7317d72eb37156ced029"></div>
-                <div class="d-inline">Handle: 21.T11148/7317d72eb37156ced029</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="11500/ATHENA-0000-0000-2401-6"></div>
-                <div class="d-inline">Old Epic Identifier: 11500/ATHENA-0000-0000-2401-6</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="978-3-14-028030-3"></div>
-                <div class="d-inline">ISBN: 978-3-14-028030-3</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="261-537-224-628-2"></div>
-                <div class="d-inline">ISLRN: 261-537-224-628-2</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="000000012281955X"></div>
-                <div class="d-inline">ISNI: 000000012281955X</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="0000-0001-9547-1582"></div>
-                <div class="d-inline">ORCID: 0000-0001-9547-1582</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="00cd95c65"></div>
-                <div class="d-inline">ROR: 00cd95c65</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="swh:1:cnt:94a9ed024d3859793618152ea559a168bbcbb5e2"></div>
-                <div class="d-inline">SWHID: swh:1:cnt:94a9ed024d3859793618152ea559a168bbcbb5e2</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="urn:nbn:ch:rero-002-109646"></div>
-                <div class="d-inline">CH-URN: urn:nbn:ch:rero-002-109646</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="urn:nbn:de:hbz:6-85659524771"></div>
-                <div class="d-inline">DE-URN: urn:nbn:de:hbz:6-85659524771</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="urn:nbn:fi-fe2021080942632"></div>
-                <div class="d-inline">FI-URN: urn:nbn:fi-fe2021080942632</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="urn:nbn:nl:ui:22-2066/16139"></div>
-                <div class="d-inline">NL-URN: urn:nbn:nl:ui:22-2066/16139</div>
-            </div>
-            <div>zbMATH</div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="bingert.sven"></div>
-                <div class="d-inline">Author ID: bingert.sven</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="32212"></div>
-                <div class="d-inline">swMATH ID: 32212</div>
-            </div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="7800006"></div>
-                <div class="d-inline">Publication ID: 7800006</div>
-            </div>
-            <div>Zenodo</div>
-            <div>With single-part resource</div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="10.5281/zenodo.8056361"></div>
-                <div class="d-inline">zenodo PID: 10.5281/zenodo.8056361</div>
-            </div>
-            <div>With multi-part resource</div>
-            <div>
-                <div class="d-inline"><input class="id" name="id" type="radio" value="10.5281/zenodo.8246990"></div>
-                <div class="d-inline">zenodo PID: 10.5281/zenodo.8246990</div>
+                <a href="https://gwdg.de/imprint/" class="text-muted me-3 small text-decoration-none">Imprint</a>
+                <a href="https://gwdg.de/data-protection-notice/" class="text-muted small text-decoration-none">Data Protection Notice</a>
             </div>
         </div>
-        <div class="pt-2">
-            <div>
-                <h6>Please select a display mode:</h6>
-            </div>
-            <div>
-                <div class="d-inline"><input type=radio id="landingpage" class="display" name="display" value="landingpage"></div>
-                <div class="d-inline">Landing Page</div>
-            </div>
-            <div>
-                <div class="d-inline"><input id="metadata" type=radio class="display" name="display" value="metadata"></div>
-                <div class="d-inline">Metadata</div>
-            </div>
-            <div>
-                <div class="d-inline"><input id="resource" type=radio class="display" name="display" value="resource"></div>
-                <div class="d-inline">Resource</div>
-            </div>
-            <div id="content-negotiation-title" class="pt-2">
-                <h6>DOI Content Negotiation</h6>
-            </div>
-            <div id="content-negotiation-bibtex">
-                <div class="d-inline"><input id="bibtex" type=radio class="display" name="display" value="cn_bibtex"></div>
-                <div class="d-inline">BibTeX</div>
-            </div>
-            <div id="content-negotiation-citation">
-                <div class="d-inline"><input id="citation" type=radio class="display" name="display" value="cn_citation"></div>
-                <div class="d-inline">Citeproc JSON</div>
-            </div>
-            <div id="content-negotiation-rdf">
-                <div class="d-inline"><input id="rdf" type=radio class="display" name="display" value="cn_rdf"></div>
-                <div class="d-inline">RDF XML</div>
-            </div>
-            <div id="content-negotiation-turtle">
-                <div class="d-inline"><input id="turtle" type=radio class="display" name="display" value="cn_turtle"></div>
-                <div class="d-inline">RDF Turtle</div>
-            </div>
-        </div>
-    </div>
-    </div>
+    </footer>
 </div>
 
 <script src="{{CONTEXT_PATH}}/static/js/handle.js" type="text/javascript"></script>
