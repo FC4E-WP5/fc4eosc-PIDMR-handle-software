@@ -72,6 +72,11 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=false;
             document.getElementById("resource").disabled=true;
         }
+        // Bibcode RegEX
+        if (identifier.match(/^\d{4}[A-Za-z0-9&\.]{5}[A-Za-z0-9\.]{4}[A-Za-z0-9\.][A-Za-z0-9\.]{4}[A-Za-z]$/)) {
+            document.getElementById("metadata").disabled=true;
+            document.getElementById("resource").disabled=false;
+        }
         if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
             document.getElementById("bibtex").style.display = "block";
             document.getElementById("citation").style.display = "block";
@@ -201,6 +206,11 @@ for (var i=0; i < templateHandleIds.length; i++) {
             if (identifier.match(/^(?:97[89]-\d{1,5}-\d{1,7}-\d{1,7}-\d{1})$/)) {
                 document.getElementById("metadata").disabled=false;
                 document.getElementById("resource").disabled=true;
+            }
+            // Bibcode RegEX
+            if (identifier.match(/^\d{4}[A-Za-z0-9&\.]{5}[A-Za-z0-9\.]{4}[A-Za-z0-9\.][A-Za-z0-9\.]{4}[A-Za-z]$/)) {
+                document.getElementById("metadata").disabled=true;
+                document.getElementById("resource").disabled=false;
             }
 
             document.getElementById("identifier").value = identifier;
