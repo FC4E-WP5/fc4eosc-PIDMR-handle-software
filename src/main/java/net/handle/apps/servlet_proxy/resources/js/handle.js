@@ -77,6 +77,11 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=false;
         }
+        // BioSample RegEX
+        if (identifier.match(/^SAM[NED](\w)?\d+$/)) {
+            document.getElementById("metadata").disabled=true;
+            document.getElementById("resource").disabled=true;
+        }
         if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
             document.getElementById("bibtex").style.display = "block";
             document.getElementById("citation").style.display = "block";
@@ -211,6 +216,11 @@ for (var i=0; i < templateHandleIds.length; i++) {
             if (identifier.match(/^\d{4}[A-Za-z0-9&\.]{5}[A-Za-z0-9\.]{4}[A-Za-z0-9\.][A-Za-z0-9\.]{4}[A-Za-z]$/)) {
                 document.getElementById("metadata").disabled=true;
                 document.getElementById("resource").disabled=false;
+            }
+            // BioSample RegEX
+            if (identifier.match(/^SAM[NED](\w)?\d+$/)) {
+                document.getElementById("metadata").disabled=true;
+                document.getElementById("resource").disabled=true;
             }
 
             document.getElementById("identifier").value = identifier;
