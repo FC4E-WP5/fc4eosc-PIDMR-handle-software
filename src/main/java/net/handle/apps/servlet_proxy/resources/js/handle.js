@@ -87,6 +87,12 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=true;
         }
+        // Cellosaurus Vocabulary Cell Line (CVCL) RegEX
+        if (identifier.match(/^CVCL_[0-9A-Z]{4}$/)) {
+            document.getElementById("metadata").disabled=true;
+            document.getElementById("resource").disabled=true;
+        }
+
         if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
             document.getElementById("bibtex").style.display = "block";
             document.getElementById("citation").style.display = "block";
@@ -229,6 +235,11 @@ for (var i=0; i < templateHandleIds.length; i++) {
             }
             // Catalogue Of Life (COL) RegEX
             if (identifier.match(/^[23456789BCDFGHJKLMNPQRSTVWXYZ]{1,6}$/)) {
+                document.getElementById("metadata").disabled=true;
+                document.getElementById("resource").disabled=true;
+            }
+            // Cellosaurus Vocabulary Cell Line (CVCL) RegEX
+            if (identifier.match(/^CVCL_[0-9A-Z]{4}$/)) {
                 document.getElementById("metadata").disabled=true;
                 document.getElementById("resource").disabled=true;
             }
