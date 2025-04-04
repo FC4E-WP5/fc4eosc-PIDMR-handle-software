@@ -92,6 +92,11 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=true;
         }
+        // The database of Genotypes and Phenotypes (dbGaP) RegEX
+        if (identifier.match(/^(phs\d{6}\.v\d+\.\w\d+)$/)) {
+            document.getElementById("metadata").disabled=true;
+            document.getElementById("resource").disabled=true;
+        }
 
         if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
             document.getElementById("bibtex").style.display = "block";
@@ -243,7 +248,11 @@ for (var i=0; i < templateHandleIds.length; i++) {
                 document.getElementById("metadata").disabled=true;
                 document.getElementById("resource").disabled=true;
             }
-
+            // The database of Genotypes and Phenotypes (dbGaP) RegEX
+            if (identifier.match(/^(phs\d{6}\.v\d+\.\w\d+)$/)) {
+                document.getElementById("metadata").disabled=true;
+                document.getElementById("resource").disabled=true;
+            }
             document.getElementById("identifier").value = identifier;
             document.getElementById("display").value = "landingpage";
             document.getElementById("landingpage").checked = true;
