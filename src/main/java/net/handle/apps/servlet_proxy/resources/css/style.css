@@ -36,3 +36,9 @@ body {
     top: 0;
     right: 0;
 }
+
+.footer-logo {
+    max-height: 50px;
+    width: 100px;
+    object-fit: contain;
+}

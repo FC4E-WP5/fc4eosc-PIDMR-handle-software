@@ -18,12 +18,14 @@
                         <img src="{{CONTEXT_PATH}}/static/images/logo.jpg" width="250" height="30" alt="faircore4eosc" class="img-fluid">
                     </a>
                 </div>
+                <a href="./">
                 <h4 class="m-0 position-absolute top-50 start-50 translate-middle fw-bold">
                     <span style="color: #000000;">PID</span>
                     <span style="color: #36B4D7;">Meta</span>
                     <span style="color: #FFCD02;">Resolver</span>
                     <span class="text-secondary">(PIDMR)</span>
                 </h4>
+                </a>
             </div>
         </header>
         <form action="{{CONTEXT_PATH}}/" method=POST>
@@ -106,15 +108,66 @@
         </div>
     </form>
     </div>
-    <footer class="bg-light border-top mt-5 py-3">
-        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
-            <p class="mb-2 mb-md-0 text-muted small">&copy; 2025 <a href="https://gwdg.de/" class="text-muted small text-decoration-none" target="_blank">GWDG</a> / <a href="https://faircore4eosc.eu/" class="text-muted small text-decoration-none" target="_blank">FAIRCORE4EOSC</a></p>
-            <div>
-                <a href="https://gwdg.de/imprint/" class="text-muted me-3 small text-decoration-none" target="_blank">Imprint</a>
-                <a href="https://gwdg.de/data-protection-notice/" class="text-muted small text-decoration-none" target="_blank">Data Protection Notice</a>
+
+
+    <footer class="bg-light border-top pt-4">
+        <div class="container">
+            <h6 class="text-center text-uppercase fw-semibold text-muted mb-4">Project Partners</h6>
+            <!-- Partnerlogos -->
+            <div class="row justify-content-center align-items-center text-center g-3 mb-4">
+                <div class="col-6 col-sm-4 col-md-2">
+                    <a href="https://www.gwdg.de/" target="_blank">
+                        <img src="{{CONTEXT_PATH}}/static/images/logo-gwdg.svg" class="img-fluid footer-logo mx-auto d-block" alt="GWDG">
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <a href="https://www.grnet.gr/en" target="_blank">
+                        <img src="{{CONTEXT_PATH}}/static/images/logo-grnet.png" class="img-fluid footer-logo mx-auto d-block" alt="GRNET">
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <a href="https://www.openaire.eu/" target="_blank">
+                        <img src="{{CONTEXT_PATH}}/static/images/logo-openaire.png" class="img-fluid footer-logo mx-auto d-block" alt="Partner 3">
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <a href="https://www.csc.fi/en" target="_blank">
+                        <img src="{{CONTEXT_PATH}}/static/images/logo-CSC.png" class="img-fluid footer-logo mx-auto d-block" alt="Partner 4">
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <a href="https://www.inria.fr/en" target="_blank">
+                        <img src="{{CONTEXT_PATH}}/static/images/logo-inria.svg" class="img-fluid footer-logo mx-auto d-block" alt="Partner 5">
+                    </a>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <a href="https://www.helsinki.fi/en" target="_blank">
+                        <img src="{{CONTEXT_PATH}}/static/images/logo_UnHel.png" class="img-fluid footer-logo mx-auto d-block" alt="Partner 6">
+                    </a>
+                </div>
             </div>
+
+            <!-- Footer-Text -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center border-top pt-3 pb-2">
+                <p class="mb-2 mb-md-0 text-muted small">&copy; 2025 <a href="https://gwdg.de/" class="text-muted small text-decoration-none" target="_blank">GWDG</a> / <a href="https://faircore4eosc.eu/" class="text-muted small text-decoration-none" target="_blank">FAIRCORE4EOSC</a></p>
+                <div>
+                    <a href="https://gwdg.de/imprint/" class="text-muted me-3 small text-decoration-none">Imprint</a>
+                    <a href="https://gwdg.de/data-protection-notice/" class="text-muted small text-decoration-none">Data Protection Notice</a>
+                </div>
+            </div>
+
         </div>
     </footer>
+
+<!--    <footer class="bg-light border-top mt-5 py-3">-->
+<!--        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">-->
+<!--            <p class="mb-2 mb-md-0 text-muted small">&copy; 2025 <a href="https://gwdg.de/" class="text-muted small text-decoration-none" target="_blank">GWDG</a> / <a href="https://faircore4eosc.eu/" class="text-muted small text-decoration-none" target="_blank">FAIRCORE4EOSC</a></p>-->
+<!--            <div>-->
+<!--                <a href="https://gwdg.de/imprint/" class="text-muted me-3 small text-decoration-none" target="_blank">Imprint</a>-->
+<!--                <a href="https://gwdg.de/data-protection-notice/" class="text-muted small text-decoration-none" target="_blank">Data Protection Notice</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </footer>-->
 </div>
 
 <script src="{{CONTEXT_PATH}}/static/js/handle.js" type="text/javascript"></script>
