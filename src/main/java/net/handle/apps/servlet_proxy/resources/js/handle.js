@@ -102,6 +102,11 @@ function processHandleOnPaste() {
             document.getElementById("metadata").disabled=true;
             document.getElementById("resource").disabled=true;
         }
+        // Decentralized Identifier (DID) RegEX
+        if (identifier.match(/^did:[a-z0-9]+:[A-Za-z0-9.\-:]+$/)) {
+            document.getElementById("metadata").disabled=true;
+            document.getElementById("resource").disabled=true;
+        }
 
         if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
             document.getElementById("bibtex").style.display = "block";
@@ -260,6 +265,11 @@ for (var i=0; i < templateHandleIds.length; i++) {
             }
             // The database of human genomic Structural Variation (dbVar) RegEX
             if (identifier.match(/^nsv\d+$/)) {
+                document.getElementById("metadata").disabled=true;
+                document.getElementById("resource").disabled=true;
+            }
+            // Decentralized Identifier (DID) RegEX
+            if (identifier.match(/^did:[a-z0-9]+:[A-Za-z0-9.\-:]+$/)) {
                 document.getElementById("metadata").disabled=true;
                 document.getElementById("resource").disabled=true;
             }
