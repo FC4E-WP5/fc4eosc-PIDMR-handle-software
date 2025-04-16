@@ -1,283 +1,191 @@
 document.getElementById('identifier').focus();
+let providersData = [];
+document.addEventListener('DOMContentLoaded', () => {
+    const providerDropdown = document.getElementById("id");
+    const resModeDropdown = document.getElementById("res_mode");
+    const selectedValueInput = document.getElementById("identifier");
+    const clearBtn = document.getElementById('clear');
+    const submitBtn = document.getElementById('submit');
+    const doiOnlyOptionIds = ['bibtex', 'citation', 'rdf', 'turtle'];
+    selectedValueInput.value = '';
+    const resModeOptions = [
+      ["landingpage", "Landing Page", "landingpage"],
+      ["metadata", "Metadata", "metadata"],
+      ["resource", "Resource", "resource"],
+      ["cn_bibtex", "BibTeX", "bibtex"],
+      ["cn_rdf", "Citeproc", "citation"],
+      ["cn_citation", "RDF XML", "rdf"],
+      ["cn_turtle", "RDF Turtle", "turtle"]
+    ];
+    buildResModeDropdown(resModeOptions);
+    if (selectedValueInput) {
+        selectedValueInput.value = '';
+    }
+    clearBtn.addEventListener('click', () => {
+        if (selectedValueInput) {
+          selectedValueInput.value = '';
+        }
+        if (providerDropdown) {
+          providerDropdown.selectedIndex = 0;
+        }
+        if (resModeDropdown) {
+            resModeDropdown.selectedIndex = 0;
+            Array.from(resModeDropdown.options).forEach((opt, idx) => {
+              if (idx === 0) {
+                opt.hidden = false;
+                opt.disabled = false;
+              } else {
+                opt.hidden = true;
+                opt.disabled = true;
+              }
+            });
+        }
+        if (submitBtn) {
+          submitBtn.disabled = true;
+        }
+    });
+    selectedValueInput.addEventListener('input', updateSubmitButtonState);
+    resModeDropdown.addEventListener('change', updateSubmitButtonState);
+    fetch('./syncProviders')
+        .then(response => response.json())
+        .then(data => {
+                providers = data.content || [];
+                providers.forEach(provider => {
+                    const option = document.createElement("option");
+                    option.textContent = provider.type;
+                    option.value = provider.examples?.[0] || '';
+                    option.className = "id";
+                    providerDropdown.appendChild(option);
+                });
+                document.getElementById("providerCountText").textContent = providers.length;
+                selectedValueInput.addEventListener('input', () => {
+                    const inputValue = selectedValueInput.value;
+                    let matchedProvider = null;
+                    for (let provider of providers) {
+                        if (provider.regexes) {
+                            for (let regexStr of provider.regexes) {
+                                try {
+                                    const regex = new RegExp(regexStr);
+                                    if (regex.test(inputValue)) {
+                                        matchedProvider = provider;
+                                        break;
+                                    }
+                                } catch (e) {
+                                    console.warn("Invalid Regex:", regexStr);
+                                }
+                            }
+                        }
+                        if (matchedProvider) break;
+                    }
+                    if (matchedProvider) {
+                        for (let option of providerDropdown.options) {
+                            if (option.textContent === matchedProvider.type) {
+                                option.selected = true;
+                                providerDropdown.dispatchEvent(new Event('change'));
+                                break;
+                            }
+                        }
+                    } else {
+                        console.warn("No matching provider found for input.");
+                    }
+                });
+                providerDropdown.addEventListener('change', () => {
+                    const selectedValue = providerDropdown.value;
+                    selectedValueInput.value = selectedValue;
+                    let matchedProvider = null;
+                    for (let provider of providers) {
+                        if (provider.regexes) {
+                            for (let regexStr of provider.regexes) {
+                                try {
+                                    const regex = new RegExp(regexStr);
+                                    if (regex.test(selectedValue)) {
+                                        matchedProvider = provider;
+                                        break;
+                                    }
+                                } catch (e) {
+                                    console.warn("Invalid Regex:", regexStr);
+                                }
+                            }
+                        }
+                        if (matchedProvider) break;
+                    }
+                    const allOptions = Array.from(resModeDropdown.options);
+                    allOptions.forEach(opt => {
+                        opt.hidden = true;
+                        opt.disabled = true;
+                    });
+                    if (matchedProvider && matchedProvider.resolution_modes) {
+                        const validModes = matchedProvider.resolution_modes.map(m => m.mode);
+                        allOptions.forEach(opt => {
+                            if (validModes.includes(opt.value)) {
+                                opt.hidden = false;
+                                opt.disabled = false;
+                            } else {
+                                opt.hidden = true;
+                                opt.disabled = true;
+                            }
+                        });
+                    } else {
+                        allOptions.forEach(opt => {
+                            opt.hidden = true;
+                            opt.disabled = true;
+                        });
+                    }
+                    if (matchedProvider.type === "doi") {
+                        doiOnlyOptionIds.forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                el.hidden = false;
+                                el.disabled = false;
+                            }
+                        });
+                    }
+                });
+            })
+        .catch(err => {
+            console.error("Error loading provider list:", err);
+        });
+});
 
-document.getElementById("identifier").addEventListener("input", processHandleOnPaste);
-function processHandleOnPaste() {
-    var identifier = document.getElementById("identifier").value;
-    if (identifier.includes("/")) {
-        var prefix = identifier.split("/")[0];
-    }
-    if (!!identifier) {
-        if (!identifier.includes("21.T11973/MR@")) {
-            identifier = identifier.trim()
-        }
-        if (identifier.includes("urn:nbn:fi")) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.includes("urn:nbn:nl")) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.includes("ark:")) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.includes("arXiv") || identifier.includes("swh:") || identifier.includes("zenodo") || identifier.includes("urn:nbn:de")) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=false;
-        }
-        if (identifier.includes("21.")) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=false;
-        }
-        if (identifier.match(/^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.match(/^([a-z][a-z\-]*(?:\.[a-z][a-z\-]*)?(?:\.[0-9]*)?)$/)) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.match(/^([0-9]{1,5})$/)) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.match(/^(0[0-9a-zA-Z]{6}[0-9]{2})$/)) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.match(/^([\d.]+)$/)) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.match(/^((?:\d{3}-){4}\d)$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        if (identifier.match(/^\d{5,5}\/.+$/)) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=true;
-        }
-        // ISNI RegEX
-        if (identifier.match(/^(\d{15}[1-9X])$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        // ISBN RegEX
-        if (identifier.match(/^(?:97[89]-\d{1,5}-\d{1,7}-\d{1,7}-\d{1})$/)) {
-            document.getElementById("metadata").disabled=false;
-            document.getElementById("resource").disabled=true;
-        }
-        // Bibcode RegEX
-        if (identifier.match(/^\d{4}[A-Za-z0-9&\.]{5}[A-Za-z0-9\.]{4}[A-Za-z0-9\.][A-Za-z0-9\.]{4}[A-Za-z]$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=false;
-        }
-        // BioSample RegEX
-        if (identifier.match(/^SAM[NED](\w)?\d+$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        // Catalogue Of Life (COL) RegEX
-        if (identifier.match(/^[23456789BCDFGHJKLMNPQRSTVWXYZ]{1,6}$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        // Cellosaurus Vocabulary Cell Line (CVCL) RegEX
-        if (identifier.match(/^CVCL_[0-9A-Z]{4}$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        // The database of Genotypes and Phenotypes (dbGaP) RegEX
-        if (identifier.match(/^(phs\d{6}\.v\d+\.\w\d+)$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        // The database of human genomic Structural Variation (dbVar) RegEX
-        if (identifier.match(/^nsv\d+$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-        // Decentralized Identifier (DID) RegEX
-        if (identifier.match(/^did:[a-z0-9]+:[A-Za-z0-9.\-:]+$/)) {
-            document.getElementById("metadata").disabled=true;
-            document.getElementById("resource").disabled=true;
-        }
-
-        if ((identifier.match(/^10\.\d+\/.+$/) || identifier.match(/(d|D)(o|O)(i|I):10\.\d+\/.+$/)) && !identifier.includes("zenodo")) {
-            document.getElementById("bibtex").style.display = "block";
-            document.getElementById("citation").style.display = "block";
-            document.getElementById("turtle").style.display = "block";
-            document.getElementById("rdf").style.display = "block";
-        } else {
-            document.getElementById("bibtex").style.display = "none";
-            document.getElementById("citation").style.display = "none";
-            document.getElementById("turtle").style.display = "none";
-            document.getElementById("rdf").style.display = "none";
-        }
-    }
-
-    if (prefix.length == 5) {
-        document.getElementById("metadata").disabled=false;
-        document.getElementById("resource").disabled=true;
-    }
-    if (!!identifier) {
-        document.getElementById("identifier").value = identifier;
-        let displayMode = document.getElementById("landingpage");
-        displayMode.checked = true;
-    }
+function buildResModeDropdown(resModeOptions) {
+  const resModeDropdown = document.getElementById("res_mode");
+  resModeDropdown.innerHTML = '';
+  const placeholder = document.createElement('option');
+  placeholder.textContent = 'Please select...';
+  placeholder.value = '';
+  placeholder.selected = true;
+  placeholder.disabled = true;
+  resModeDropdown.appendChild(placeholder);
+  resModeOptions.forEach(([value, label, id]) => {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = label;
+    option.id = id;
+    option.hidden = true;
+    option.disabled = true;
+    resModeDropdown.appendChild(option);
+  });
 }
 
-document.getElementById("clear").addEventListener("click", clearIdentifier);
-function clearIdentifier() {
-	document.getElementById("identifier").value = "";
-	document.getElementById("noredirect").checked = false;
-	document.getElementById('identifier').focus();
-	var displays = document.getElementsByClassName("display");
-    for (var i=0; i < displays.length; i++) {
-        if (displays[i].checked) {
-            displays[i].checked = false;
-        }
-        displays[i].disabled=false;
-    }
-	var ids = document.getElementsByClassName("id");
-    for (var i=0; i < ids.length; i++) {
-        if (ids[i].checked) {
-            ids[i].checked = false;
-        }
-    }
+function updateSubmitButtonState() {
+  const input = document.getElementById('selectedValue');
+  const dropdown = document.getElementById('res_mode');
+  const submitBtn = document.getElementById('submit');
+  const inputHasValue = input && input.value.trim() !== '';
+  const dropdownHasSelection = dropdown && dropdown.value !== '' && dropdown.selectedIndex !== -1;
+  submitBtn.disabled = !(inputHasValue && dropdownHasSelection);
 }
 
-var templateHandleIds = document.getElementsByClassName("id");
-for (var i=0; i < templateHandleIds.length; i++) {
-    templateHandleIds[i].onclick = function(){
-        let identifier = this.value;
-        if (!!identifier) {
-            if (identifier.includes("urn:nbn:de")) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=false;
-            }
-            if (identifier.includes("urn:nbn:fi")) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.includes("urn:nbn:nl")) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.includes("swh:")) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=false;
-            }
-            if (identifier.includes("ark:")) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.includes("arXiv") || identifier.includes("zenodo")) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=false;
-            }
-            if (identifier.includes("21.")) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.match(/^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.match(/^([a-z][a-z\-]*(?:\.[a-z][a-z\-]*)?(?:\.[0-9]*)?)$/)) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.match(/^([0-9]{1,5})$/)) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.match(/^(0[0-9a-zA-Z]{6}[0-9]{2})$/)) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.match(/^([\d.]+)$/)) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.match(/^((?:\d{3}-){4}\d)$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.match(/^\d{5,5}\/.+$/)) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=true;
-            }
-            if (identifier.includes("doi:10.") && !identifier.includes("zenodo")) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=false;
-            }
-            if (identifier.includes("doi:10.")) {
-                document.getElementById("bibtex").style.display = "block";
-                document.getElementById("citation").style.display = "block";
-                document.getElementById("turtle").style.display = "block";
-                document.getElementById("rdf").style.display = "block";
-            } else {
-                document.getElementById("bibtex").style.display = "none";
-                document.getElementById("citation").style.display = "none";
-                document.getElementById("turtle").style.display = "none";
-                document.getElementById("rdf").style.display = "none";
-            }
-            // ISNI RegEx
-            if (identifier.match(/^(\d{15}[1-9X])$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            // ISBN RegEX
-            if (identifier.match(/^(?:97[89]-\d{1,5}-\d{1,7}-\d{1,7}-\d{1})$/)) {
-                document.getElementById("metadata").disabled=false;
-                document.getElementById("resource").disabled=true;
-            }
-            // Bibcode RegEX
-            if (identifier.match(/^\d{4}[A-Za-z0-9&\.]{5}[A-Za-z0-9\.]{4}[A-Za-z0-9\.][A-Za-z0-9\.]{4}[A-Za-z]$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=false;
-            }
-            // BioSample RegEX
-            if (identifier.match(/^SAM[NED](\w)?\d+$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            // Catalogue Of Life (COL) RegEX
-            if (identifier.match(/^[23456789BCDFGHJKLMNPQRSTVWXYZ]{1,6}$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            // Cellosaurus Vocabulary Cell Line (CVCL) RegEX
-            if (identifier.match(/^CVCL_[0-9A-Z]{4}$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            // The database of Genotypes and Phenotypes (dbGaP) RegEX
-            if (identifier.match(/^(phs\d{6}\.v\d+\.\w\d+)$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            // The database of human genomic Structural Variation (dbVar) RegEX
-            if (identifier.match(/^nsv\d+$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            // Decentralized Identifier (DID) RegEX
-            if (identifier.match(/^did:[a-z0-9]+:[A-Za-z0-9.\-:]+$/)) {
-                document.getElementById("metadata").disabled=true;
-                document.getElementById("resource").disabled=true;
-            }
-            document.getElementById("identifier").value = identifier;
-            document.getElementById("display").value = "landingpage";
-            document.getElementById("landingpage").checked = true;
-            document.getElementById("noredirect").checked = false;
-        }
+function updateSubmitButtonState() {
+    const input = document.getElementById('identifier');
+    const dropdown = document.getElementById('res_mode');
+    const submitBtn = document.getElementById('submit');
+    const inputHasValue = input && input.value.trim() !== '';
+    const dropdownHasSelection = dropdown && dropdown.value !== '' && dropdown.selectedIndex !== -1;
+    if (inputHasValue && dropdownHasSelection) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
     }
 }
 
