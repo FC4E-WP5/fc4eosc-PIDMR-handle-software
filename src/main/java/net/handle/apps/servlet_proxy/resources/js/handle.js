@@ -8,16 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = document.getElementById('submit');
     const doiOnlyOptionIds = ['bibtex', 'citation', 'rdf', 'turtle'];
     selectedValueInput.value = '';
+    buildPlaceholder('Please select...', resModeDropdown);
     const resModeOptions = [
-      ["landingpage", "Landing Page", "landingpage"],
-      ["metadata", "Metadata", "metadata"],
-      ["resource", "Resource", "resource"],
-      ["cn_bibtex", "BibTeX", "bibtex"],
-      ["cn_rdf", "Citeproc", "citation"],
-      ["cn_citation", "RDF XML", "rdf"],
-      ["cn_turtle", "RDF Turtle", "turtle"]
+        ["landingpage", "Landing Page", "landingpage"],
+        ["metadata", "Metadata", "metadata"],
+        ["resource", "Resource", "resource"],
+        ["cn_bibtex", "BibTeX", "bibtex"],
+        ["cn_rdf", "Citeproc", "citation"],
+        ["cn_citation", "RDF XML", "rdf"],
+        ["cn_turtle", "RDF Turtle", "turtle"]
     ];
-    buildResModeDropdown(resModeOptions);
     if (selectedValueInput) {
         selectedValueInput.value = '';
     }
@@ -90,56 +90,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 providerDropdown.addEventListener('change', () => {
-                    const selectedValue = providerDropdown.value;
-                    selectedValueInput.value = selectedValue;
-                    let matchedProvider = null;
-                    for (let provider of providers) {
-                        if (provider.regexes) {
-                            for (let regexStr of provider.regexes) {
-                                try {
-                                    const regex = new RegExp(regexStr);
-                                    if (regex.test(selectedValue)) {
-                                        matchedProvider = provider;
-                                        break;
-                                    }
-                                } catch (e) {
-                                    console.warn("Invalid Regex:", regexStr);
-                                }
-                            }
+                  const selectedValue = providerDropdown.value;
+                  selectedValueInput.value = selectedValue;
+
+                  let matchedProvider = null;
+
+                  for (let provider of providers) {
+                    if (provider.regexes) {
+                      for (let regexStr of provider.regexes) {
+                        try {
+                          const regex = new RegExp(regexStr);
+                          if (regex.test(selectedValue)) {
+                            matchedProvider = provider;
+                            break;
+                          }
+                        } catch (e) {
+                          console.warn("Invalid Regex:", regexStr);
                         }
-                        if (matchedProvider) break;
+                      }
                     }
-                    const allOptions = Array.from(resModeDropdown.options);
-                    allOptions.forEach(opt => {
-                        opt.hidden = true;
-                        opt.disabled = true;
-                    });
-                    if (matchedProvider && matchedProvider.resolution_modes) {
-                        const validModes = matchedProvider.resolution_modes.map(m => m.mode);
-                        allOptions.forEach(opt => {
-                            if (validModes.includes(opt.value)) {
-                                opt.hidden = false;
-                                opt.disabled = false;
-                            } else {
-                                opt.hidden = true;
-                                opt.disabled = true;
-                            }
-                        });
-                    } else {
-                        allOptions.forEach(opt => {
-                            opt.hidden = true;
-                            opt.disabled = true;
-                        });
-                    }
-                    if (matchedProvider.type === "doi") {
-                        doiOnlyOptionIds.forEach(id => {
-                            const el = document.getElementById(id);
-                            if (el) {
-                                el.hidden = false;
-                                el.disabled = false;
-                            }
-                        });
-                    }
+                    if (matchedProvider) break;
+                  }
+                  if (matchedProvider && matchedProvider.resolution_modes) {
+                    const allowedModes = matchedProvider.resolution_modes.map(m => m.mode);
+                    const isDOI = matchedProvider.type === "doi";
+                    buildResModeDropdown(resModeOptions, allowedModes, isDOI);
+                  } else {
+                    // wenn kein Match → res_mode leeren
+                    buildResModeDropdown(resModeOptions, [], false);
+                  }
                 });
             })
         .catch(err => {
@@ -147,33 +126,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 });
 
-function buildResModeDropdown(resModeOptions) {
-  const resModeDropdown = document.getElementById("res_mode");
-  resModeDropdown.innerHTML = '';
-  const placeholder = document.createElement('option');
-  placeholder.textContent = 'Please select...';
-  placeholder.value = '';
-  placeholder.selected = true;
-  placeholder.disabled = true;
-  resModeDropdown.appendChild(placeholder);
-  resModeOptions.forEach(([value, label, id]) => {
+function buildPlaceholder(text, element) {
+    const placeholder = document.createElement('option');
+    placeholder.textContent = text;
+    placeholder.value = '';
+    placeholder.selected = true;
+    placeholder.disabled = true;
+    element.appendChild(placeholder);
+}
+
+function buildResModeDropdown(resModeOptions, allowedModes = [], isDOI = false) {
+    const resModeDropdown = document.getElementById("res_mode");
+    while (resModeDropdown.firstChild) {
+    resModeDropdown.removeChild(resModeDropdown.firstChild);
+    }
+    buildPlaceholder('Please select...', resModeDropdown);
+    resModeOptions.forEach(([value, label, id]) => {
     const option = document.createElement('option');
     option.value = value;
     option.textContent = label;
     option.id = id;
-    option.hidden = true;
-    option.disabled = true;
+    const isStandard = allowedModes.includes(value);
+    const isSpecialDOI = isDOI && ["cn_bibtex", "cn_rdf", "cn_citation", "cn_turtle"].includes(value);
+    option.hidden = !(isStandard || isSpecialDOI);
+    option.disabled = !(isStandard || isSpecialDOI);
+    option.selected = false;
     resModeDropdown.appendChild(option);
-  });
-}
-
-function updateSubmitButtonState() {
-  const input = document.getElementById('selectedValue');
-  const dropdown = document.getElementById('res_mode');
-  const submitBtn = document.getElementById('submit');
-  const inputHasValue = input && input.value.trim() !== '';
-  const dropdownHasSelection = dropdown && dropdown.value !== '' && dropdown.selectedIndex !== -1;
-  submitBtn.disabled = !(inputHasValue && dropdownHasSelection);
+    });
+    const landing = resModeDropdown.querySelector('option[value="landingpage"]');
+    if (landing && !landing.hidden && !landing.disabled) {
+    landing.selected = true;
+    }
+    resModeDropdown.classList.remove('flash');
+    void resModeDropdown.offsetWidth;
+    resModeDropdown.classList.add('flash');
+    updateSubmitButtonState();
 }
 
 function updateSubmitButtonState() {
@@ -182,11 +169,7 @@ function updateSubmitButtonState() {
     const submitBtn = document.getElementById('submit');
     const inputHasValue = input && input.value.trim() !== '';
     const dropdownHasSelection = dropdown && dropdown.value !== '' && dropdown.selectedIndex !== -1;
-    if (inputHasValue && dropdownHasSelection) {
-        submitBtn.disabled = false;
-    } else {
-        submitBtn.disabled = true;
-    }
+    submitBtn.disabled = !(inputHasValue && dropdownHasSelection);
 }
 
 var displayElements = document.getElementsByClassName("display");
