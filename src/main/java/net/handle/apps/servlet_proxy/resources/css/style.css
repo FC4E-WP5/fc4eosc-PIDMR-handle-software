@@ -42,3 +42,13 @@ body {
     width: 100px;
     object-fit: contain;
 }
+
+@keyframes flash-reset {
+  0%   { background-color: #fff3cd; }  /* hellgelb */
+  50%  { background-color: #ffeeba; }
+  100% { background-color: white; }
+}
+
+.flash {
+  animation: flash-reset 0.8s ease-in-out;
+}
